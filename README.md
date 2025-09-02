@@ -1,528 +1,295 @@
 # AI Doctor Assistant
 
-🏥 **A fully functional AI-powered medical consultation system built with FastAPI and React**
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-green.svg)]()
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)]()
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)]()
+[![React](https://img.shields.io/badge/React-18+-blue.svg)]()
+[![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green.svg)]()
 
-**✅ PROJECT STATUS: 100% COMPLETE & DEPLOYMENT READY**
+A comprehensive AI-powered medical consultation platform that provides intelligent analysis of medical test reports and patient symptoms. Built with modern web technologies and integrated with OpenAI's GPT-4 for advanced medical reasoning.
 
-A comprehensive full-stack web application that provides medical analysis and emergency treatment recommendations based on uploaded test reports and patient symptoms. Built following modern software architecture principles and medical AI best practices.
+## Overview
 
-🎯 **Integration tested and verified** - All components working seamlessly together!
+The AI Doctor Assistant is a full-stack web application designed to assist healthcare workflows through intelligent document processing and symptom analysis. The system processes uploaded medical reports, analyzes patient symptoms, and provides structured medical insights while maintaining appropriate medical disclaimers and professional boundaries.
 
-## ✨ Features
+### Key Capabilities
 
-- 🏥 **Medical Test Report Processing** - Upload and analyze PDF reports and medical images with OCR
-- 🩺 **Intelligent Symptom Analysis** - Structured symptom collection with severity tracking
-- 🤖 **AI-Powered Medical Assessment** - OpenAI GPT-4 powered analysis with medical reasoning
-- 🚨 **Emergency Detection** - Automated identification of critical conditions with risk assessment
-- 📊 **Medical History Management** - Comprehensive patient data tracking and consultation history
-- 🔐 **Secure Authentication** - JWT-based user authentication with automatic token refresh
-- 📱 **Responsive Design** - Mobile-friendly interface with professional medical theme
-- ⚡ **Real-time Processing** - Instant file processing and AI analysis
-- 🔄 **Enhanced Consultations** - Advanced consultation workflow with timeline analysis
-- 🎯 **Integration Tested** - Comprehensive validation with 100% test pass rate
+- **Medical Document Processing**: Advanced OCR and PDF extraction for test reports and medical images
+- **Intelligent Symptom Analysis**: Structured symptom collection with severity assessment and timeline tracking
+- **AI-Powered Medical Assessment**: Integration with OpenAI GPT-4 for medical reasoning and analysis
+- **Emergency Detection**: Automated identification of potentially critical conditions
+- **Comprehensive Medical History**: Patient data management and consultation tracking
+- **Professional Security**: JWT authentication with secure token management
 
-## 🏗️ Architecture
+## Architecture
 
-### Backend (FastAPI)
-- **FastAPI** - High-performance Python web framework with automatic API docs
-- **PostgreSQL** - Robust relational database with optimized medical data models
-- **SQLAlchemy** - Advanced ORM with relationship management
-- **JWT Authentication** - Secure token-based auth with automatic refresh
-- **OpenAI GPT-4** - Advanced medical AI analysis with structured prompts
-- **File Processing** - PDF extraction, OCR with Tesseract, and image processing
-- **Medical Data Parsing** - Structured medical information extraction and validation
-- **Pydantic** - Data validation and serialization
-- **Uvicorn** - High-performance ASGI server
+### Technology Stack
 
-### Frontend (React + TypeScript)
-- **React 18** - Modern UI library with hooks and functional components
-- **TypeScript** - Type-safe development with comprehensive type definitions
-- **Tailwind CSS** - Utility-first styling with custom medical theme
-- **Redux Toolkit** - Predictable state management for auth and consultations
-- **React Hook Form** - Performant form handling with validation
-- **Axios** - HTTP client with interceptors and automatic token management
-- **React Router DOM** - Client-side routing with protected routes
-- **React Dropzone** - Drag-and-drop file upload interface
-- **Lucide React** - Beautiful icons for medical interface
+**Backend**
+- FastAPI with automatic OpenAPI documentation
+- PostgreSQL with SQLAlchemy ORM
+- JWT-based authentication system
+- OpenAI GPT-4 integration
+- Tesseract OCR for image processing
+- Pydantic for data validation
 
-## 📁 Project Structure
+**Frontend**
+- React 18 with TypeScript
+- Redux Toolkit for state management
+- Tailwind CSS for styling
+- React Hook Form for form management
+- Axios for API communication
 
-```
-BuildCreative/
-├── 📁 backend/                     # FastAPI Backend
-│   ├── 📁 app/
-│   │   ├── 📁 api/v1/              # API endpoints
-│   │   │   ├── api.py              # Main API router
-│   │   │   ├── auth.py             # Authentication routes
-│   │   │   ├── users.py            # User management
-│   │   │   ├── consultations.py    # Basic medical consultations
-│   │   │   ├── enhanced_consultations.py # Advanced consultation features
-│   │   │   └── files.py            # File upload/processing
-│   │   ├── 📁 core/                # Core functionality
-│   │   │   ├── config.py           # Configuration settings
-│   │   │   ├── database.py         # Database connection
-│   │   │   ├── security.py         # JWT & password handling
-│   │   │   └── deps.py             # FastAPI dependencies
-│   │   ├── 📁 models/              # Database models
-│   │   │   └── models.py           # SQLAlchemy models
-│   │   ├── 📁 schemas/             # Pydantic schemas
-│   │   │   └── schemas.py          # Request/response models
-│   │   ├── 📁 services/            # Business logic
-│   │   │   ├── ai_service.py       # AI analysis service
-│   │   │   ├── file_service.py     # File processing
-│   │   │   ├── specialized_medical_service.py # Specialized medical analysis
-│   │   │   └── timeline_analysis_service.py   # Timeline analysis
-│   │   └── main.py                 # FastAPI application
-│   ├── requirements.txt            # Python dependencies
-│   ├── Dockerfile                  # Container configuration
-│   ├── migrate_metadata_column.py # Database migration script
-│   └── test_*.py                   # Integration tests
-├── 📁 frontend/                    # React Frontend
-│   ├── 📁 public/
-│   │   ├── index.html              # HTML template
-│   │   └── manifest.json           # PWA manifest
-│   ├── 📁 src/
-│   │   ├── 📁 components/          # Reusable components
-│   │   │   ├── Layout.tsx          # Main layout
-│   │   │   ├── Navbar.tsx          # Navigation
-│   │   │   ├── ProtectedRoute.tsx  # Route protection
-│   │   │   └── Sidebar.tsx         # Side navigation
-│   │   ├── 📁 pages/               # Page components
-│   │   │   ├── LoginPage.tsx       # Authentication
-│   │   │   ├── RegisterPage.tsx    # User registration
-│   │   │   ├── DashboardPage.tsx   # Main dashboard
-│   │   │   ├── ConsultationPage.tsx # Basic consultation
-│   │   │   ├── EnhancedConsultationPage.tsx # Advanced consultation
-│   │   │   ├── HistoryPage.tsx     # Consultation history
-│   │   │   └── ProfilePage.tsx     # User profile
-│   │   ├── 📁 store/               # Redux state management
-│   │   │   ├── store.ts            # Store configuration
-│   │   │   ├── authSlice.ts        # Authentication state
-│   │   │   ├── consultationSlice.ts # Consultation state
-│   │   │   └── userSlice.ts        # User data state
-│   │   ├── 📁 services/            # API services
-│   │   │   └── api.ts              # HTTP client
-│   │   ├── 📁 types/               # TypeScript definitions
-│   │   │   └── index.ts            # Type definitions
-│   │   ├── App.tsx                 # Main app component
-│   │   ├── index.tsx               # React entry point
-│   │   └── index.css               # Global styles
-│   ├── package.json                # Node.js dependencies
-│   ├── tailwind.config.js          # Tailwind configuration
-│   ├── postcss.config.js           # PostCSS configuration
-│   └── tsconfig.json               # TypeScript configuration
-├── docker-compose.yml              # Multi-container setup
-├── DEPLOYMENT.md                   # Deployment guide
-└── README.md                       # This file
-```
+**Infrastructure**
+- Docker containerization
+- PostgreSQL database
+- File storage system
+- Environment-based configuration
 
-## 🚀 Quick Start
+## Installation
 
-### Option 1: Docker Setup (Recommended)
+### Prerequisites
 
-**Start all services with Docker:**
+- Python 3.9+
+- Node.js 18+
+- PostgreSQL 13+
+- Docker (optional, recommended)
+- OpenAI API key
+
+### Quick Start with Docker
+
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd AI-Doctor-Assistant/BuildCreative
 
-# Start all services (PostgreSQL, Backend, Frontend)
+# Start all services
 docker-compose up -d
-
-# View logs
-docker-compose logs -f
 
 # Access the application
 # Frontend: http://localhost:3000
 # Backend API: http://localhost:8000
-# API Documentation: http://localhost:8000/docs
+# API Docs: http://localhost:8000/docs
 ```
 
-### Option 2: Manual Setup
-
-#### Prerequisites
-- Python 3.9+
-- Node.js 18+
-- PostgreSQL 13+
-- OpenAI API Key
-- Tesseract OCR (for image processing)
+### Manual Installation
 
 #### Backend Setup
+
 ```bash
 cd backend
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Setup environment variables
-# Create .env file with:
-DATABASE_URL=postgresql://postgres:postgres123@localhost:5432/ai_doctor_db
-SECRET_KEY=your-super-secret-key-min-32-characters
-OPENAI_API_KEY=your-openai-api-key
-UPLOAD_DIRECTORY=./uploaded_files
-MAX_FILE_SIZE=10485760
+# Configure environment variables
+cp .env.example .env
+# Edit .env with your configuration
 
 # Start the server
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 #### Frontend Setup
+
 ```bash
 cd frontend
 
 # Install dependencies
 npm install
 
-# Setup environment (optional)
-# Create .env file with:
-REACT_APP_API_URL=http://localhost:8000
+# Configure environment
+cp .env.example .env
+# Edit .env with your configuration
 
 # Start development server
 npm start
-
-# Application will be available at http://localhost:3000
 ```
 
-#### Database Setup
-```sql
--- Create PostgreSQL database
-createdb ai_doctor_db
+## Configuration
 
--- Tables will be created automatically on first run
-```
+### Environment Variables
 
-### Option 3: Production Deployment
+#### Backend (.env)
 ```bash
-# For production deployment, see DEPLOYMENT.md
-# Build and deploy with proper environment configuration
-
-# Production checklist:
-# ✅ Set strong SECRET_KEY
-# ✅ Configure production PostgreSQL database
-# ✅ Set OpenAI API key
-# ✅ Configure CORS for your domain
-# ✅ Set up SSL certificates
-# ✅ Configure monitoring and logging
-```
-
-## 🔧 Configuration
-
-### Backend Environment Variables
-```bash
-# Database Configuration
-DATABASE_URL=postgresql://postgres:postgres123@localhost:5432/ai_doctor_db
-
-# Security Settings
-SECRET_KEY=your-super-secret-key-min-32-characters
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-# AI Service Integration
+DATABASE_URL=postgresql://user:password@localhost:5432/ai_doctor_db
+SECRET_KEY=your-secure-secret-key-minimum-32-characters
 OPENAI_API_KEY=your-openai-api-key
-
-# File Upload Configuration
-MAX_FILE_SIZE=10485760  # 10MB
+MAX_FILE_SIZE=10485760
 UPLOAD_DIRECTORY=./uploaded_files
-
-# Application Settings
-ALGORITHM=HS256
-DEBUG=false
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
-### Frontend Environment Variables
+#### Frontend (.env)
 ```bash
-# API Configuration
 REACT_APP_API_URL=http://localhost:8000
-
-# Application Settings (optional)
-REACT_APP_APP_NAME="AI Doctor Assistant"
-REACT_APP_VERSION="1.0.0"
 ```
 
-## 🎯 API Endpoints
+## API Documentation
 
-### Authentication
+### Core Endpoints
+
+#### Authentication
 - `POST /api/v1/auth/register` - User registration
-- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/login` - User authentication
 - `POST /api/v1/auth/refresh` - Token refresh
 
-### Basic Consultations
-- `POST /api/v1/consultations/` - Create consultation
-- `GET /api/v1/consultations/` - Get user consultations
-- `GET /api/v1/consultations/{id}` - Get consultation details
-- `POST /api/v1/consultations/{id}/symptoms` - Submit symptoms
-- `POST /api/v1/consultations/{id}/analyze` - AI analysis
+#### Consultations
+- `POST /api/v1/consultations/` - Create new consultation
+- `GET /api/v1/consultations/` - Retrieve user consultations
+- `POST /api/v1/consultations/{id}/analyze` - Request AI analysis
 
-### Enhanced Consultations
+#### Enhanced Consultations
 - `POST /api/v1/enhanced-consultations/` - Create enhanced consultation
-- `GET /api/v1/enhanced-consultations/{id}` - Get enhanced consultation
-- `POST /api/v1/enhanced-consultations/{id}/submit-data` - Submit comprehensive data
-- `POST /api/v1/enhanced-consultations/{id}/analyze` - Advanced AI analysis
 - `POST /api/v1/enhanced-consultations/{id}/timeline-analysis` - Timeline analysis
 
-### File Management
-- `POST /api/v1/files/upload/{consultation_id}` - Upload test reports
-- `GET /api/v1/files/{file_id}` - Get file info
-- `DELETE /api/v1/files/{file_id}` - Delete file
+#### File Management
+- `POST /api/v1/files/upload/{consultation_id}` - Upload medical documents
+- `GET /api/v1/files/{file_id}` - Retrieve file information
 
-### User Management
-- `GET /api/v1/users/me` - Get user profile
-- `PUT /api/v1/users/me` - Update profile
-- `GET /api/v1/users/me/medical-history` - Get medical history
+### Interactive Documentation
 
-### System
-- `GET /api/v1/health` - Health check endpoint
-- `GET /docs` - Interactive API documentation
-- `GET /redoc` - Alternative API documentation
+Access comprehensive API documentation at:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
 
-## 🎨 Frontend Features
+## Usage
 
-### User Interface
-- **Medical Theme** - Professional healthcare design
-- **Responsive Layout** - Mobile-first approach
-- **Accessibility** - WCAG 2.1 compliant
-- **Dark/Light Mode** - User preference support
+### Basic Workflow
 
-### Components
-- **File Upload** - Drag-and-drop with validation
-- **Symptom Forms** - Structured medical data collection
-- **Analysis Display** - Rich visualization of AI results
-- **Emergency Alerts** - Critical condition warnings
+1. **User Registration**: Create account with secure authentication
+2. **Consultation Creation**: Initialize new medical consultation
+3. **Document Upload**: Upload test reports and medical images
+4. **Symptom Input**: Provide structured symptom information
+5. **AI Analysis**: Receive intelligent medical assessment
+6. **Review Results**: Access comprehensive analysis and recommendations
 
-## 🧠 AI Analysis Features
+### Enhanced Features
 
-### Medical Analysis Capabilities
-- **Symptom Analysis** - Comprehensive symptom evaluation
-- **Test Report Processing** - PDF and image extraction
-- **Risk Assessment** - Automated risk level calculation
-- **Emergency Detection** - Critical condition identification
-- **Treatment Recommendations** - Evidence-based suggestions
+- **Timeline Analysis**: Track medical progression over time
+- **Specialized Analysis**: Domain-specific medical evaluations
+- **Emergency Detection**: Automated critical condition identification
+- **Medical History**: Comprehensive patient data management
 
-### AI Model Integration
-- **OpenAI GPT-4 Integration** - Advanced medical reasoning with latest model
-- **Structured Medical Prompts** - Specialized prompt engineering for medical analysis
-- **Multi-layered Analysis** - Symptom analysis, test interpretation, and risk assessment
-- **Emergency Detection** - Automatic identification of critical conditions
-- **Confidence Scoring** - Reliability assessment for AI recommendations
-- **Timeline Analysis** - Advanced temporal medical data analysis
-- **Specialized Medical Services** - Targeted analysis for specific medical domains
-- **Disclaimer Handling** - Appropriate medical warnings and limitations
+## Development
 
-## 🛡️ Security Features
+### Project Structure
 
-- **JWT Authentication** - Secure token-based auth
-- **Password Hashing** - bcrypt encryption
-- **Input Validation** - Comprehensive data validation
-- **File Security** - Safe file upload and processing
-- **Rate Limiting** - API abuse prevention
-- **CORS Configuration** - Secure cross-origin requests
+```
+BuildCreative/
+├── backend/                    # FastAPI application
+│   ├── app/
+│   │   ├── api/v1/            # API endpoints
+│   │   ├── core/              # Core functionality
+│   │   ├── models/            # Database models
+│   │   ├── schemas/           # Pydantic schemas
+│   │   ├── services/          # Business logic
+│   │   └── main.py            # Application entry point
+│   └── requirements.txt       # Python dependencies
+├── frontend/                   # React application
+│   ├── src/
+│   │   ├── components/        # Reusable components
+│   │   ├── pages/             # Page components
+│   │   ├── store/             # Redux state management
+│   │   ├── services/          # API services
+│   │   └── types/             # TypeScript definitions
+│   └── package.json           # Node.js dependencies
+├── docker-compose.yml          # Container orchestration
+└── README.md                   # Documentation
+```
 
-## 📱 Application Flow
+### Testing
 
-### Basic Consultation Flow
-1. **User Registration/Login** - Secure account creation with JWT authentication
-2. **Dashboard Access** - Overview of consultations and health status
-3. **Consultation Creation** - Choose between basic or enhanced consultation
-4. **File Upload** - Drag-and-drop test reports and medical images (PDF/JPG/PNG)
-5. **Symptom Description** - Structured symptom collection with severity ratings
-6. **AI Analysis** - GPT-4 powered medical assessment with risk evaluation
-7. **Results Review** - Comprehensive analysis with treatment recommendations
-8. **Emergency Handling** - Automatic critical condition detection and alerts
+```bash
+# Backend testing
+cd backend
+python -m pytest tests/ -v
 
-### Enhanced Consultation Flow
-1. **Enhanced Consultation Creation** - Advanced consultation with timeline features
-2. **Comprehensive Data Submission** - Detailed medical history and current symptoms
-3. **Timeline Analysis** - Advanced temporal analysis of medical progression
-4. **Specialized Medical Analysis** - Domain-specific medical evaluations
-5. **Multi-layered Assessment** - Combined analysis of all available data
-6. **History Management** - Complete consultation history and tracking
+# Frontend testing
+cd frontend
+npm test
 
-## 📄 Documentation
+# Integration testing
+python test_main.py
+```
 
-### Available Documentation
-- **README.md** - This comprehensive guide
-- **DEPLOYMENT.md** - Detailed deployment instructions with integration test results
-- **API Documentation** - Interactive docs at `/docs` endpoint
-- **Code Comments** - Comprehensive inline documentation
-
-### API Documentation Access
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI Schema**: http://localhost:8000/openapi.json
-
-## 🚨 System Requirements
-
-### Minimum Requirements
-- **Python**: 3.9 or higher
-- **Node.js**: 18.0 or higher
-- **PostgreSQL**: 13 or higher
-- **RAM**: 4GB minimum, 8GB recommended
-- **Storage**: 2GB available space
-- **Network**: Internet connection for AI services
-
-### Recommended Setup
-- **OS**: Ubuntu 20.04+, Windows 10+, or macOS 11+
-- **Docker**: Latest version for containerized deployment
-- **Tesseract OCR**: For advanced image processing
-- **Redis**: For caching (optional but recommended for production)
-
-## 🌐 Deployment
+## Deployment
 
 ### Production Checklist
-- [ ] Set strong SECRET_KEY (minimum 32 characters)
-- [ ] Configure production PostgreSQL database
-- [ ] Set up OpenAI API key with proper billing
-- [ ] Configure CORS for your production domain
-- [ ] Set up SSL certificates (HTTPS)
-- [ ] Configure file storage (consider AWS S3 for production)
+
+- [ ] Configure secure SECRET_KEY
+- [ ] Set up production database
+- [ ] Configure OpenAI API access
+- [ ] Set up SSL certificates
+- [ ] Configure CORS policies
 - [ ] Set up monitoring and logging
 - [ ] Configure automated backups
-- [ ] Review all security settings
-- [ ] Set up health checks and alerts
-- [ ] Configure proper error tracking
-- [ ] Set up CI/CD pipeline
+- [ ] Review security settings
 
 ### Docker Production
+
 ```bash
-# For production deployment with Docker
-# See DEPLOYMENT.md for detailed instructions
+# Production deployment
+export POSTGRES_PASSWORD=secure-password
+export SECRET_KEY=production-secret-key
+export OPENAI_API_KEY=your-api-key
 
-# Production environment setup
-export POSTGRES_PASSWORD=your-secure-password
-export SECRET_KEY=your-production-secret-key
-export OPENAI_API_KEY=your-openai-api-key
-
-# Deploy with production configuration
 docker-compose -f docker-compose.yml up -d
 ```
 
-## 🧪 Testing
+## Security
 
-### Integration Testing
-```bash
-# Run comprehensive integration tests
-cd backend
-python test_main.py
-python test_registration.py
-python test_specialized_analysis.py
-python test_db_connection.py
-python test_cors.py
-```
+### Security Features
 
-### Backend Testing
-```bash
-cd backend
-# Install test dependencies
-pip install pytest pytest-asyncio
+- JWT-based authentication with automatic token refresh
+- Bcrypt password hashing
+- Comprehensive input validation
+- Secure file upload and processing
+- CORS configuration
+- Rate limiting protection
 
-# Run all tests
-python -m pytest tests/ -v
+### Best Practices
 
-# Run specific test files
-python test_main.py  # Core functionality tests
-python test_registration.py  # User registration tests
-```
+- Regular security updates
+- Secure environment variable management
+- Database access controls
+- File upload restrictions
+- API rate limiting
 
-### Frontend Testing
-```bash
-cd frontend
-# Run React tests
-npm test
+## Medical Disclaimer
 
-# Run tests in CI mode
-npm test -- --coverage --watchAll=false
-```
+**IMPORTANT NOTICE**: This application is designed for educational and informational purposes only. It is not intended to replace professional medical advice, diagnosis, or treatment.
 
-### Test Coverage
-- ✅ **Integration Tests**: 8/8 tests passing
-- ✅ **Authentication System**: JWT token management
-- ✅ **Database Models**: User, consultation, file models
-- ✅ **API Endpoints**: All routes tested
-- ✅ **File Processing**: PDF and image upload
-- ✅ **AI Integration**: OpenAI service integration
+### Key Points
 
-## 📊 Monitoring & Logging
-
-- **Application Logs** - Comprehensive logging
-- **Performance Metrics** - Response time tracking
-- **Error Tracking** - Automated error reporting
-- **Health Checks** - System status monitoring
-
-## 🔗 Additional Resources
-
-### Related Documentation
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [React Documentation](https://reactjs.org/docs/)
-- [OpenAI API Documentation](https://platform.openai.com/docs/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Docker Documentation](https://docs.docker.com/)
-
-### Medical Disclaimer Resources
-- [FDA Medical Device Guidelines](https://www.fda.gov/medical-devices)
-- [Medical AI Ethics Guidelines](https://www.who.int/publications/i/item/9789240029200)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## ⚠️ Important Medical Disclaimer
-
-**CRITICAL NOTICE**: This AI Doctor Assistant is for **educational and informational purposes only**. It is **NOT intended to be a substitute** for professional medical advice, diagnosis, or treatment.
-
-### Key Points:
-- **Always consult healthcare professionals** for medical concerns
-- **Never rely solely on AI analysis** for medical decisions
-- **In emergencies**, call emergency services immediately
-- **This system cannot replace** qualified medical practitioners
-- **AI analysis may contain errors** and should be verified
+- Always consult qualified healthcare professionals for medical concerns
+- Never rely solely on AI analysis for medical decisions
+- In medical emergencies, contact emergency services immediately
+- This system cannot replace qualified medical practitioners
+- AI analysis may contain errors and should be verified by professionals
 
 ### Liability
-The developers and operators of this system assume no responsibility for any medical decisions made based on the information provided by this application.
 
-## 📄 License
+The developers and operators assume no responsibility for medical decisions made based on information provided by this application.
 
-MIT License - see [LICENSE](LICENSE) file for details.
+## Contributing
 
-## 👥 Support
+We welcome contributions to improve the AI Doctor Assistant. Please follow these guidelines:
 
-For support, please:
-1. Check the documentation
-2. Search existing issues
-3. Create a new issue with detailed description
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/improvement`)
+3. Commit changes with clear messages
+4. Push to your branch
+5. Submit a Pull Request
 
-## 🔗 Additional Resources
+### Development Standards
 
-### Related Documentation
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [React Documentation](https://reactjs.org/docs/)
-- [OpenAI API Documentation](https://platform.openai.com/docs/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Docker Documentation](https://docs.docker.com/)
+- Follow existing code style and conventions
+- Include comprehensive tests for new features
+- Update documentation as needed
+- Ensure all tests pass before submission
 
-### Medical Disclaimer Resources
-- [FDA Medical Device Guidelines](https://www.fda.gov/medical-devices)
-- [Medical AI Ethics Guidelines](https://www.who.int/publications/i/item/9789240029200)
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## 👥 Support
-
-For support, please:
-1. Check the documentation
-2. Search existing issues
-3. Create a new issue with detailed description
-
----
-
-💬 **Need Help?** Check our [DEPLOYMENT.md](DEPLOYMENT.md) for detailed setup instructions and troubleshooting.
-
-**Built with ❤️ for healthcare innovation** | **Version 1.0.0** | **Integration Tested ✅**

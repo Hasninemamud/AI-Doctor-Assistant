@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from app.api.v1 import auth, users, consultations, files
+from app.api.v1 import auth, users, consultations, files, enhanced_consultations
 
 api_router = APIRouter()
 
@@ -10,4 +10,5 @@ api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(consultations.router, prefix="/consultations", tags=["consultations"])
+api_router.include_router(enhanced_consultations.router, prefix="/consultations/enhanced", tags=["enhanced-consultations"])
 api_router.include_router(files.router, prefix="/files", tags=["files"])

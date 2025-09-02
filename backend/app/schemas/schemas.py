@@ -1,14 +1,14 @@
 # Pydantic schemas for request/response validation
 
 from pydantic import BaseModel, EmailStr, validator
-from datetime import datetime
-from typing import Optional, List, Dict, Any
+from datetime import datetime, date
+from typing import Optional, List, Dict, Any, Union
 from uuid import UUID
 import enum
 
 from app.models.models import (
     GenderEnum, ConsultationStatusEnum, ProcessingStatusEnum,
-    RiskLevelEnum, SenderTypeEnum
+    RiskLevelEnum, SenderTypeEnum, AnalysisTypeEnum, MedicalSpecialtyEnum
 )
 
 
@@ -16,19 +16,32 @@ from app.models.models import (
 class BaseSchema(BaseModel):
     class Config:
         from_attributes = True
+        # Allow model_version field names
+        protected_namespaces = ()
 
 
 # User schemas
 class UserBase(BaseSchema):
     email: EmailStr
     name: str
-    date_of_birth: Optional[datetime] = None
+    date_of_birth: Optional[Union[date, str]] = None
     gender: Optional[GenderEnum] = None
     phone: Optional[str] = None
 
 
 class UserCreate(UserBase):
     password: str
+    
+    @validator('date_of_birth', pre=True, allow_reuse=True)
+    def parse_date_of_birth(cls, v):
+        if v is None or v == "":
+            return None
+        if isinstance(v, str):
+            try:
+                return datetime.strptime(v, '%Y-%m-%d').date()
+            except ValueError:
+                raise ValueError('Invalid date format. Use YYYY-MM-DD')
+        return v
     
     @validator('password')
     def validate_password(cls, v):
@@ -45,9 +58,20 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseSchema):
     name: Optional[str] = None
-    date_of_birth: Optional[datetime] = None
+    date_of_birth: Optional[Union[date, str]] = None
     gender: Optional[GenderEnum] = None
     phone: Optional[str] = None
+    
+    @validator('date_of_birth', pre=True, allow_reuse=True)
+    def parse_date_of_birth(cls, v):
+        if v is None or v == "":
+            return None
+        if isinstance(v, str):
+            try:
+                return datetime.strptime(v, '%Y-%m-%d').date()
+            except ValueError:
+                raise ValueError('Invalid date format. Use YYYY-MM-DD')
+        return v
 
 
 class User(UserBase):
@@ -182,7 +206,7 @@ class Analysis(AnalysisBase):
 class ChatMessageBase(BaseSchema):
     sender_type: SenderTypeEnum
     message_content: str
-    metadata: Optional[Dict[str, Any]] = None
+    message_metadata: Optional[Dict[str, Any]] = None
 
 
 class ChatMessageCreate(ChatMessageBase):
@@ -274,3 +298,123 @@ class HealthResponse(BaseSchema):
     service: str
     timestamp: datetime
     version: str = "1.0.0"
+
+
+# Symptom Timeline schemas
+class SymptomTimelineEntry(BaseSchema):
+    symptom: str
+    severity: Optional[int] = None  # 1-10 scale
+    location: Optional[str] = None
+    quality: Optional[str] = None
+    duration: Optional[str] = None
+    notes: Optional[str] = None
+    recorded_at: datetime
+
+
+class SymptomTimelineCreate(SymptomTimelineEntry):
+    consultation_id: UUID
+
+
+class SymptomTimeline(SymptomTimelineEntry):
+    id: UUID
+    consultation_id: UUID
+    entered_at: datetime
+
+
+# Specialized Analysis schemas
+class TimelinePattern(BaseSchema):
+    pattern_type: str
+    description: str
+    significance: str
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    severity_trend: Optional[str] = None  # improving, worsening, stable
+    confidence: float = 0.0
+
+
+class ProgressionAnalysis(BaseSchema):
+    progression: str  # worsening, improving, stable, unknown
+    severity_range: Optional[List[int]] = None
+    symptom_count_trend: int = 0
+    average_interval_hours: float = 0.0
+    total_duration_hours: float = 0.0
+
+
+class RiskTrajectory(BaseSchema):
+    current_risk: str
+    risk_trend: str  # increasing, stable, decreasing
+    rapid_changes_count: int = 0
+    average_recent_severity: float = 0.0
+
+
+class EmergencyScreeningResult(BaseSchema):
+    is_emergency: bool
+    emergency_level: str  # none, low, moderate, high, critical
+    red_flags: List[str]
+    immediate_actions: List[str]
+    time_to_care: str  # immediate, within_1_hour, within_4_hours, within_24_hours
+    emergency_specialty: Optional[str] = None
+    confidence: int
+    reasoning: str
+
+
+class TimelineAnalysisResult(BaseSchema):
+    timeline_summary: str
+    identified_patterns: List[TimelinePattern]
+    progression_analysis: ProgressionAnalysis
+    risk_trajectory: RiskTrajectory
+    recommendations: List[Dict[str, Any]]
+    ai_insights: Dict[str, Any]
+
+
+class SpecializedAnalysisBase(BaseSchema):
+    analysis_type: AnalysisTypeEnum
+    medical_specialty: Optional[MedicalSpecialtyEnum] = None
+    model_used: Optional[str] = None
+    analysis_results: Dict[str, Any]
+    summary: Optional[str] = None
+    confidence_score: Optional[int] = None
+
+
+class SpecializedAnalysisCreate(SpecializedAnalysisBase):
+    consultation_id: UUID
+    is_emergency: Optional[bool] = None
+    emergency_level: Optional[str] = None
+    red_flags: Optional[List[str]] = None
+    identified_patterns: Optional[List[Dict[str, Any]]] = None
+    progression_analysis: Optional[Dict[str, Any]] = None
+    risk_trajectory: Optional[Dict[str, Any]] = None
+
+
+class SpecializedAnalysis(SpecializedAnalysisBase):
+    id: UUID
+    consultation_id: UUID
+    is_emergency: Optional[bool] = None
+    emergency_level: Optional[str] = None
+    red_flags: Optional[List[str]] = None
+    identified_patterns: Optional[List[Dict[str, Any]]] = None
+    progression_analysis: Optional[Dict[str, Any]] = None
+    risk_trajectory: Optional[Dict[str, Any]] = None
+    created_at: datetime
+
+
+# Enhanced Analysis Request schemas
+class EnhancedAnalysisRequest(BaseSchema):
+    consultation_id: UUID
+    analysis_types: List[AnalysisTypeEnum] = [AnalysisTypeEnum.GENERAL]
+    include_emergency_screening: bool = True
+    include_timeline_analysis: bool = True
+    include_test_reports: bool = True
+    include_symptoms: bool = True
+    include_medical_history: bool = True
+
+
+class ComprehensiveAnalysisResponse(BaseSchema):
+    consultation_id: UUID
+    general_analysis: Optional[AnalysisResponse] = None
+    emergency_screening: Optional[EmergencyScreeningResult] = None
+    timeline_analysis: Optional[TimelineAnalysisResult] = None
+    specialized_analyses: List[SpecializedAnalysis] = []
+    overall_risk_level: RiskLevelEnum
+    priority_recommendations: List[Dict[str, Any]]
+    analysis_timestamp: datetime

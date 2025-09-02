@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ConsultationPage from './pages/ConsultationPage';
+import EnhancedConsultationPage from './pages/EnhancedConsultationPage';
 import HistoryPage from './pages/HistoryPage';
 import ProfilePage from './pages/ProfilePage';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -45,6 +46,7 @@ const App: React.FC = () => {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="consultation" element={<ConsultationPage />} />
           <Route path="consultation/:id" element={<ConsultationPage />} />
+          <Route path="consultation/enhanced/:id" element={<EnhancedConsultationPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

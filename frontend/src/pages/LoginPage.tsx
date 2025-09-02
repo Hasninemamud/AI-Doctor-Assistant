@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
@@ -34,15 +34,15 @@ const LoginPage: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-medical-100">
-      <div className="max-w-md w-full space-y-8 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-medical-100 p-4">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-primary-600 rounded-full flex items-center justify-center">
-            <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-auto h-12 w-12 sm:h-16 sm:w-16 bg-primary-600 rounded-full flex items-center justify-center">
+            <svg className="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-medical-900">
+          <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-medical-900">
             AI Doctor Assistant
           </h2>
           <p className="mt-2 text-sm text-medical-600">
@@ -50,7 +50,7 @@ const LoginPage: React.FC = () => {
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-medical-700">
@@ -126,7 +126,7 @@ const LoginPage: React.FC = () => {
           </div>
         </form>
 
-        <div className="mt-8 p-4 bg-primary-50 rounded-lg">
+        <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-primary-50 rounded-lg">
           <h3 className="text-sm font-medium text-primary-900 mb-2">
             ⚠️ Medical Disclaimer
           </h3>

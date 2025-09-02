@@ -11,31 +11,36 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-medical font-semibold;
   }
+
+  /* Prevent horizontal scroll on mobile */
+  html, body {
+    @apply overflow-x-hidden;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-sm sm:text-base;
   }
   
   .btn-secondary {
-    @apply bg-medical-200 hover:bg-medical-300 text-medical-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-medical-200 hover:bg-medical-300 text-medical-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-sm sm:text-base;
   }
   
   .btn-danger {
-    @apply bg-danger-600 hover:bg-danger-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-danger-600 hover:bg-danger-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-sm sm:text-base;
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-medical-200 p-6;
+    @apply bg-white rounded-lg shadow-sm border border-medical-200 p-4 sm:p-6;
   }
   
   .form-input {
-    @apply w-full px-3 py-2 border border-medical-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-3 py-2 border border-medical-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base;
   }
   
   .medical-alert {
-    @apply p-4 rounded-lg border-l-4;
+    @apply p-3 sm:p-4 rounded-lg border-l-4;
   }
   
   .alert-emergency {
@@ -52,6 +57,23 @@
   
   .alert-success {
     @apply medical-alert bg-success-50 border-success-500 text-success-800;
+  }
+
+  /* Mobile-first responsive text sizes */
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl;
   }
 }
 
@@ -72,7 +94,7 @@
 
 /* File upload dropzone */
 .dropzone {
-  @apply border-2 border-dashed border-medical-300 rounded-lg p-8 text-center cursor-pointer transition-colors duration-200;
+  @apply border-2 border-dashed border-medical-300 rounded-lg p-4 sm:p-8 text-center cursor-pointer transition-colors duration-200;
 }
 
 .dropzone:hover {
@@ -102,4 +124,36 @@
 
 .severity-critical {
   @apply bg-danger-700;
+}
+
+/* Mobile-specific utilities */
+@layer utilities {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .safe-area-padding {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Custom scrollbar for mobile */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+  }
 }

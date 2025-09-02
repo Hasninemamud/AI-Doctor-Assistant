@@ -68,13 +68,20 @@ export interface TestReport {
   processed_at?: string;
 }
 
+export interface Recommendation {
+  category: 'lifestyle' | 'medication' | 'follow_up' | 'immediate' | 'emergency' | 'urgent' | 'monitoring';
+  action: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  timeline?: string;
+}
+
 export interface Analysis {
   id: string;
   consultation_id: string;
   ai_analysis: any;
   risk_level: 'low' | 'moderate' | 'high' | 'critical';
   summary?: string;
-  recommendations?: any[];
+  recommendations?: (Recommendation | string)[];
   emergency_actions?: any[];
   follow_up_suggestions?: string[];
   model_version?: string;
@@ -96,7 +103,7 @@ export interface AnalysisResponse {
   summary: string;
   risk_level: 'low' | 'moderate' | 'high' | 'critical';
   key_findings: string[];
-  recommendations: any[];
+  recommendations: (Recommendation | string)[];
   emergency_alert?: EmergencyAlert;
   follow_up_suggestions: string[];
   confidence_score: number;
@@ -119,4 +126,102 @@ export interface MedicalHistory {
   family_history?: string[];
   created_at: string;
   updated_at?: string;
+}
+
+// Enhanced types for specialized medical analysis
+export interface SymptomTimelineEntry {
+  id?: string;
+  consultation_id?: string;
+  symptom: string;
+  severity?: number; // 1-10 scale
+  location?: string;
+  quality?: string;
+  duration?: string;
+  notes?: string;
+  recorded_at: string;
+  entered_at?: string;
+}
+
+export interface TimelinePattern {
+  pattern_type: string;
+  description: string;
+  significance: string;
+  start_time: string;
+  end_time?: string;
+  severity_trend?: 'improving' | 'worsening' | 'stable';
+  confidence: number;
+}
+
+export interface ProgressionAnalysis {
+  progression: 'worsening' | 'improving' | 'stable' | 'unknown';
+  severity_range?: [number, number];
+  symptom_count_trend: number;
+  average_interval_hours: number;
+  total_duration_hours: number;
+}
+
+export interface RiskTrajectory {
+  current_risk: 'low' | 'moderate' | 'high' | 'critical';
+  risk_trend: 'increasing' | 'stable' | 'decreasing';
+  rapid_changes_count: number;
+  average_recent_severity: number;
+}
+
+export interface EmergencyScreeningResult {
+  is_emergency: boolean;
+  emergency_level: 'none' | 'low' | 'moderate' | 'high' | 'critical';
+  red_flags: string[];
+  immediate_actions: string[];
+  time_to_care: 'immediate' | 'within_1_hour' | 'within_4_hours' | 'within_24_hours';
+  emergency_specialty?: string;
+  confidence: number;
+  reasoning: string;
+}
+
+export interface TimelineAnalysisResult {
+  timeline_summary: string;
+  identified_patterns: TimelinePattern[];
+  progression_analysis: ProgressionAnalysis;
+  risk_trajectory: RiskTrajectory;
+  recommendations: Recommendation[];
+  ai_insights: any;
+}
+
+export interface SpecializedAnalysis {
+  id: string;
+  consultation_id: string;
+  analysis_type: 'general' | 'emergency_screening' | 'clinical_analysis' | 'timeline_analysis' | 'differential_diagnosis';
+  medical_specialty?: string;
+  model_used?: string;
+  analysis_results: any;
+  summary?: string;
+  confidence_score?: number;
+  is_emergency?: boolean;
+  emergency_level?: string;
+  red_flags?: string[];
+  identified_patterns?: any[];
+  progression_analysis?: any;
+  risk_trajectory?: any;
+  created_at: string;
+}
+
+export interface EnhancedAnalysisRequest {
+  consultation_id: string;
+  analysis_types: string[];
+  include_emergency_screening: boolean;
+  include_timeline_analysis: boolean;
+  include_test_reports: boolean;
+  include_symptoms: boolean;
+  include_medical_history: boolean;
+}
+
+export interface ComprehensiveAnalysisResponse {
+  consultation_id: string;
+  general_analysis?: AnalysisResponse;
+  emergency_screening?: EmergencyScreeningResult;
+  timeline_analysis?: TimelineAnalysisResult;
+  specialized_analyses: SpecializedAnalysis[];
+  overall_risk_level: 'low' | 'moderate' | 'high' | 'critical';
+  priority_recommendations: Recommendation[];
+  analysis_timestamp: string;
 }

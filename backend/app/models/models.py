@@ -43,6 +43,29 @@ class SenderTypeEnum(str, enum.Enum):
     SYSTEM = "system"
 
 
+class AnalysisTypeEnum(str, enum.Enum):
+    GENERAL = "general"
+    EMERGENCY_SCREENING = "emergency_screening"
+    CLINICAL_ANALYSIS = "clinical_analysis"
+    TIMELINE_ANALYSIS = "timeline_analysis"
+    DIFFERENTIAL_DIAGNOSIS = "differential_diagnosis"
+    SYMPTOM_PATTERN = "symptom_pattern"
+    RISK_STRATIFICATION = "risk_stratification"
+
+
+class MedicalSpecialtyEnum(str, enum.Enum):
+    GENERAL = "general"
+    EMERGENCY = "emergency"
+    CARDIOLOGY = "cardiology"
+    NEUROLOGY = "neurology"
+    GASTROENTEROLOGY = "gastroenterology"
+    RESPIRATORY = "respiratory"
+    DERMATOLOGY = "dermatology"
+    PSYCHIATRY = "psychiatry"
+    ORTHOPEDICS = "orthopedics"
+    INFECTIOUS_DISEASE = "infectious_disease"
+
+
 class User(Base):
     """User model for authentication and profile management"""
     __tablename__ = "users"
@@ -111,6 +134,8 @@ class Consultation(Base):
     test_reports = relationship("TestReport", back_populates="consultation")
     analyses = relationship("Analysis", back_populates="consultation")
     chat_messages = relationship("ChatMessage", back_populates="consultation")
+    symptom_timeline = relationship("SymptomTimeline", back_populates="consultation")
+    specialized_analyses = relationship("SpecializedAnalysis", back_populates="consultation")
 
 
 class TestReport(Base):
@@ -175,10 +200,67 @@ class ChatMessage(Base):
     # Message data
     sender_type = Column(Enum(SenderTypeEnum), nullable=False)
     message_content = Column(Text, nullable=False)
-    metadata = Column(JSON, nullable=True)  # Additional message metadata
+    message_metadata = Column(JSON, nullable=True)  # Additional message metadata
     
     # Timestamps
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
     consultation = relationship("Consultation", back_populates="chat_messages")
+
+
+class SymptomTimeline(Base):
+    """Symptom timeline entries for tracking symptom progression"""
+    __tablename__ = "symptom_timeline"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    consultation_id = Column(UUID(as_uuid=True), ForeignKey("consultations.id"), nullable=False)
+    
+    # Symptom data
+    symptom = Column(String(255), nullable=False)
+    severity = Column(Integer, nullable=True)  # 1-10 scale
+    location = Column(String(255), nullable=True)
+    quality = Column(String(255), nullable=True)
+    duration = Column(String(100), nullable=True)
+    notes = Column(Text, nullable=True)
+    
+    # Timeline metadata
+    recorded_at = Column(DateTime(timezone=True), nullable=False)  # When symptom occurred
+    entered_at = Column(DateTime(timezone=True), server_default=func.now())  # When data was entered
+    
+    # Relationships
+    consultation = relationship("Consultation", back_populates="symptom_timeline")
+
+
+class SpecializedAnalysis(Base):
+    """Specialized medical analysis results from different AI models"""
+    __tablename__ = "specialized_analyses"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    consultation_id = Column(UUID(as_uuid=True), ForeignKey("consultations.id"), nullable=False)
+    
+    # Analysis metadata
+    analysis_type = Column(Enum(AnalysisTypeEnum), nullable=False)
+    medical_specialty = Column(Enum(MedicalSpecialtyEnum), nullable=True)
+    model_used = Column(String(100), nullable=True)
+    
+    # Analysis results
+    analysis_results = Column(JSON, nullable=False)  # Full analysis data
+    summary = Column(Text, nullable=True)
+    confidence_score = Column(Integer, nullable=True)  # 0-100
+    
+    # Emergency screening specific
+    is_emergency = Column(Boolean, nullable=True)
+    emergency_level = Column(String(20), nullable=True)  # none, low, moderate, high, critical
+    red_flags = Column(JSON, nullable=True)  # Emergency indicators
+    
+    # Timeline analysis specific
+    identified_patterns = Column(JSON, nullable=True)  # Timeline patterns
+    progression_analysis = Column(JSON, nullable=True)  # Symptom progression data
+    risk_trajectory = Column(JSON, nullable=True)  # Risk over time
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    consultation = relationship("Consultation", back_populates="specialized_analyses")

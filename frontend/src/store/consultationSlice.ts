@@ -128,20 +128,52 @@ const consultationSlice = createSlice({
 
     // Get consultations
     builder
+      .addCase(getConsultations.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(getConsultations.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.consultations = action.payload;
+      })
+      .addCase(getConsultations.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
 
     // Get consultation
     builder
+      .addCase(getConsultation.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(getConsultation.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.currentConsultation = action.payload;
+      })
+      .addCase(getConsultation.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
 
     // Submit symptoms
     builder
+      .addCase(submitSymptoms.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(submitSymptoms.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.currentConsultation = action.payload;
+        // Update consultation in list if it exists
+        const index = state.consultations.findIndex(c => c.id === action.payload.id);
+        if (index !== -1) {
+          state.consultations[index] = action.payload;
+        }
+      })
+      .addCase(submitSymptoms.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
 
     // Analyze consultation

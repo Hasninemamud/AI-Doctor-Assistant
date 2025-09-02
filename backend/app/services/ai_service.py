@@ -1,7 +1,7 @@
 # AI Analysis Service for medical consultation
 
 import json
-import openai
+import httpx
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 
@@ -11,17 +11,20 @@ from app.schemas.schemas import (
     SymptomData, SymptomSubmission
 )
 
-# Configure OpenAI
-openai.api_key = settings.OPENAI_API_KEY
-
 
 class AIAnalysisService:
     """Service for AI-powered medical analysis"""
     
     def __init__(self):
-        self.model = "gpt-4"  # Use GPT-4 for better medical reasoning
+        self.model = settings.OPENROUTER_MODEL  # Use OpenRouter model
         self.max_tokens = 2000
         self.temperature = 0.3  # Lower temperature for more consistent medical advice
+        self.base_url = settings.OPENROUTER_BASE_URL
+        self.api_key = settings.OPENROUTER_API_KEY
+        
+        # Validate API key
+        if not self.api_key or self.api_key == "" or self.api_key == "your-openrouter-api-key-here":
+            self.api_key = None
     
     async def analyze_consultation(
         self,
@@ -42,6 +45,13 @@ class AIAnalysisService:
         Returns:
             Dict[str, Any]: AI analysis results
         """
+        # Check if API key is configured
+        if not self.api_key:
+            return self._create_fallback_analysis(
+                "OpenRouter API key not configured. Please set OPENROUTER_API_KEY in your .env file.",
+                symptoms, test_report_text, medical_history, chief_complaint
+            )
+        
         # Prepare context for AI analysis
         context = self._prepare_medical_context(
             symptoms, test_report_text, medical_history, chief_complaint
@@ -51,8 +61,8 @@ class AIAnalysisService:
         prompt = self._create_analysis_prompt(context)
         
         try:
-            # Call OpenAI API
-            response = await self._call_openai_api(prompt)
+            # Call OpenRouter API
+            response = await self._call_openrouter_api(prompt)
             
             # Parse and structure the response
             analysis_result = self._parse_ai_response(response)
@@ -60,14 +70,11 @@ class AIAnalysisService:
             return analysis_result
             
         except Exception as e:
-            # Return error response
-            return {
-                "error": True,
-                "message": f"AI analysis failed: {str(e)}",
-                "risk_level": "unknown",
-                "recommendations": [],
-                "emergency_alert": None
-            }
+            # Return fallback analysis with error details
+            return self._create_fallback_analysis(
+                f"AI analysis failed: {str(e)}",
+                symptoms, test_report_text, medical_history, chief_complaint
+            )
     
     def _prepare_medical_context(
         self,
@@ -183,9 +190,9 @@ Please analyze the patient information and respond with valid JSON only."""
 
         return prompt
     
-    async def _call_openai_api(self, prompt: str) -> str:
+    async def _call_openrouter_api(self, prompt: str) -> str:
         """
-        Call OpenAI API for medical analysis
+        Call OpenRouter API for medical analysis
         
         Args:
             prompt: Analysis prompt
@@ -194,9 +201,16 @@ Please analyze the patient information and respond with valid JSON only."""
             str: AI response
         """
         try:
-            response = openai.ChatCompletion.create(
-                model=self.model,
-                messages=[
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "http://localhost:8000",
+                "X-Title": "AI Doctor Assistant"
+            }
+            
+            payload = {
+                "model": self.model,
+                "messages": [
                     {
                         "role": "system",
                         "content": "You are a knowledgeable medical AI assistant that provides thorough analysis while always emphasizing the need for professional medical consultation. Always respond with valid JSON."
@@ -206,14 +220,98 @@ Please analyze the patient information and respond with valid JSON only."""
                         "content": prompt
                     }
                 ],
-                max_tokens=self.max_tokens,
-                temperature=self.temperature
-            )
+                "max_tokens": self.max_tokens,
+                "temperature": self.temperature,
+                "top_p": 1,
+                "frequency_penalty": 0,
+                "presence_penalty": 0
+            }
             
-            return response.choices[0].message.content.strip()
-            
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=headers,
+                    json=payload,
+                    timeout=60.0
+                )
+                
+                # Handle specific OpenRouter errors
+                if response.status_code == 404:
+                    error_data = response.json() if response.headers.get('content-type', '').startswith('application/json') else {}
+                    if "data policy" in str(error_data).lower() or "free model publication" in str(error_data).lower():
+                        # Try alternative free model
+                        return await self._try_alternative_model(prompt, headers)
+                    else:
+                        raise Exception(f"Model not found: {response.text}")
+                
+                if response.status_code != 200:
+                    raise Exception(f"OpenRouter API error: {response.status_code} - {response.text}")
+                
+                result = response.json()
+                if "choices" not in result or not result["choices"]:
+                    raise Exception("No response choices returned from API")
+                    
+                return result["choices"][0]["message"]["content"].strip()
+                
         except Exception as e:
-            raise Exception(f"OpenAI API error: {str(e)}")
+            raise Exception(f"OpenRouter API error: {str(e)}")
+    
+    async def _try_alternative_model(self, prompt: str, headers: dict) -> str:
+        """
+        Try alternative free models when the primary model fails
+        
+        Args:
+            prompt: Analysis prompt
+            headers: Request headers
+            
+        Returns:
+            str: AI response
+        """
+        # List of alternative free models to try
+        alternative_models = [
+            "microsoft/wizardlm-2-8x22b:free",
+            "meta-llama/llama-3.1-8b-instruct:free",
+            "google/gemma-2-9b-it:free",
+            "huggingfaceh4/zephyr-7b-beta:free",
+            "openchat/openchat-7b:free"
+        ]
+        
+        for model in alternative_models:
+            try:
+                payload = {
+                    "model": model,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": "You are a medical AI assistant. Provide analysis in JSON format with medical recommendations while emphasizing professional consultation."
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "max_tokens": self.max_tokens,
+                    "temperature": self.temperature
+                }
+                
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        f"{self.base_url}/chat/completions",
+                        headers=headers,
+                        json=payload,
+                        timeout=30.0
+                    )
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        if "choices" in result and result["choices"]:
+                            return result["choices"][0]["message"]["content"].strip()
+                    
+            except Exception:
+                continue  # Try next model
+        
+        # If all models fail, raise an exception
+        raise Exception("All free models are currently unavailable. Please try again later or configure a paid model.")
     
     def _parse_ai_response(self, response: str) -> Dict[str, Any]:
         """
@@ -312,6 +410,236 @@ Please analyze the patient information and respond with valid JSON only."""
             "qualified healthcare provider for medical concerns. In case of emergency, "
             "call emergency services immediately."
         )
+    
+    def _create_fallback_analysis(
+        self, 
+        error_message: str,
+        symptoms: Optional[Dict[str, Any]] = None,
+        test_report_text: Optional[str] = None,
+        medical_history: Optional[Dict[str, Any]] = None,
+        chief_complaint: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Create a comprehensive fallback analysis when AI service is unavailable
+        
+        Args:
+            error_message: Error that occurred
+            symptoms: Patient symptoms
+            test_report_text: Test report text
+            medical_history: Medical history
+            chief_complaint: Chief complaint
+            
+        Returns:
+            Dict[str, Any]: Fallback analysis
+        """
+        # Determine risk level based on available data
+        risk_level = "moderate"  # Default
+        severity_score = 0
+        emergency_indicators = []
+        
+        # Analyze symptoms for risk assessment
+        if symptoms:
+            severity = None
+            if isinstance(symptoms, dict) and "symptoms" in symptoms:
+                symptom_list = symptoms["symptoms"]
+                if isinstance(symptom_list, list) and symptom_list:
+                    for symptom in symptom_list:
+                        if isinstance(symptom, dict):
+                            # Check severity
+                            if "severity" in symptom:
+                                severity = symptom.get("severity")
+                                if isinstance(severity, (int, float)):
+                                    severity_score = max(severity_score, severity)
+                                    if severity >= 9:
+                                        risk_level = "critical"
+                                        emergency_indicators.append("Severe pain/symptom reported (9-10/10)")
+                                    elif severity >= 7:
+                                        risk_level = "high"
+                                    elif severity >= 5:
+                                        risk_level = "moderate"
+                            
+                            # Check for emergency keywords
+                            symptom_text = str(symptom).lower()
+                            if any(keyword in symptom_text for keyword in [
+                                "chest pain", "difficulty breathing", "shortness of breath", 
+                                "severe headache", "loss of consciousness", "seizure",
+                                "severe bleeding", "severe abdominal pain", "stroke",
+                                "heart attack", "suicide", "overdose"
+                            ]):
+                                risk_level = "high"
+                                emergency_indicators.append("Potential emergency symptoms reported")
+        
+        # Check chief complaint for emergency indicators
+        if chief_complaint:
+            complaint_text = chief_complaint.lower()
+            if any(keyword in complaint_text for keyword in [
+                "emergency", "urgent", "severe", "can't breathe", "chest pain",
+                "heart attack", "stroke", "bleeding", "unconscious"
+            ]):
+                if risk_level not in ["high", "critical"]:
+                    risk_level = "high"
+                emergency_indicators.append("Emergency keywords in chief complaint")
+        
+        # Create appropriate recommendations based on risk level
+        recommendations = self._generate_fallback_recommendations(risk_level, severity_score, emergency_indicators)
+        
+        # Generate key findings
+        key_findings = self._generate_fallback_findings(symptoms, chief_complaint, severity_score)
+        
+        return {
+            "summary": self._generate_fallback_summary(risk_level, error_message, chief_complaint),
+            "risk_level": risk_level,
+            "key_findings": key_findings,
+            "recommendations": recommendations,
+            "follow_up_suggestions": self._generate_follow_up_suggestions(risk_level),
+            "confidence_score": 40 if symptoms else 25,  # Higher confidence if we have symptom data
+            "disclaimer": self._get_default_disclaimer(),
+            "ai_analysis": {
+                "error": error_message,
+                "fallback_analysis": True,
+                "chief_complaint": chief_complaint,
+                "risk_assessment_method": "rule-based",
+                "severity_score": severity_score,
+                "emergency_indicators": emergency_indicators,
+                "analysis_timestamp": datetime.utcnow().isoformat()
+            },
+            "created_at": datetime.utcnow(),
+            "emergency_alert": self._create_emergency_alert(risk_level, emergency_indicators) if risk_level in ["high", "critical"] else None
+        }
+    
+    def _generate_fallback_recommendations(self, risk_level: str, severity_score: float, emergency_indicators: list) -> list:
+        """Generate appropriate recommendations based on risk assessment"""
+        recommendations = []
+        
+        if risk_level == "critical":
+            recommendations.extend([
+                {
+                    "category": "emergency",
+                    "action": "Seek immediate emergency medical attention - call 911 or go to emergency room",
+                    "priority": "critical",
+                    "timeline": "Immediately"
+                },
+                {
+                    "category": "immediate",
+                    "action": "Do not delay medical care - this may be a medical emergency",
+                    "priority": "critical",
+                    "timeline": "Now"
+                }
+            ])
+        elif risk_level == "high":
+            recommendations.extend([
+                {
+                    "category": "urgent",
+                    "action": "Seek urgent medical attention within 2-4 hours",
+                    "priority": "high",
+                    "timeline": "Within 2-4 hours"
+                },
+                {
+                    "category": "follow_up",
+                    "action": "Consider urgent care or emergency room if symptoms worsen",
+                    "priority": "high",
+                    "timeline": "If symptoms change"
+                }
+            ])
+        else:
+            recommendations.extend([
+                {
+                    "category": "follow_up",
+                    "action": "Schedule an appointment with your primary care physician",
+                    "priority": "medium",
+                    "timeline": "Within 24-48 hours" if risk_level == "moderate" else "Within 1-2 weeks"
+                }
+            ])
+        
+        # Always add monitoring recommendation
+        recommendations.append({
+            "category": "monitoring",
+            "action": "Monitor symptoms closely and seek immediate care if they worsen significantly",
+            "priority": "high",
+            "timeline": "Ongoing"
+        })
+        
+        return recommendations
+    
+    def _generate_fallback_findings(self, symptoms: Optional[Dict[str, Any]], chief_complaint: Optional[str], severity_score: float) -> list:
+        """Generate key findings based on available data"""
+        findings = []
+        
+        if chief_complaint:
+            findings.append(f"Chief complaint reported: {chief_complaint[:100]}..." if len(chief_complaint) > 100 else f"Chief complaint: {chief_complaint}")
+        
+        if severity_score > 0:
+            if severity_score >= 8:
+                findings.append(f"High symptom severity reported ({severity_score}/10)")
+            elif severity_score >= 5:
+                findings.append(f"Moderate symptom severity reported ({severity_score}/10)")
+            else:
+                findings.append(f"Mild symptom severity reported ({severity_score}/10)")
+        
+        findings.extend([
+            "Comprehensive medical evaluation recommended",
+            "Professional medical assessment required for proper diagnosis",
+            "AI analysis system temporarily unavailable"
+        ])
+        
+        return findings
+    
+    def _generate_fallback_summary(self, risk_level: str, error_message: str, chief_complaint: Optional[str]) -> str:
+        """Generate appropriate summary based on risk level"""
+        if risk_level == "critical":
+            return "URGENT: Based on reported symptoms, this may require immediate medical attention. AI analysis is unavailable, but symptom severity suggests emergency evaluation."
+        elif risk_level == "high":
+            return "HIGH PRIORITY: Reported symptoms suggest need for urgent medical evaluation. While AI analysis is unavailable, prompt medical attention is recommended."
+        else:
+            return f"Medical consultation recommended for proper evaluation. {error_message.split(':')[0] if ':' in error_message else 'AI analysis temporarily unavailable'}. Please consult with a healthcare provider."
+    
+    def _generate_follow_up_suggestions(self, risk_level: str) -> list:
+        """Generate follow-up suggestions based on risk level"""
+        base_suggestions = [
+            "Keep a detailed symptom diary with times, severity, and triggers",
+            "Prepare a list of questions for your healthcare provider",
+            "Bring any relevant medical records and test results to your appointment"
+        ]
+        
+        if risk_level in ["high", "critical"]:
+            base_suggestions.insert(0, "Do not delay seeking medical care if symptoms worsen or new symptoms develop")
+            base_suggestions.append("Have emergency contact information readily available")
+        else:
+            base_suggestions.append("Schedule follow-up as recommended by your healthcare provider")
+            base_suggestions.append("Contact your doctor if symptoms persist or worsen")
+        
+        return base_suggestions
+    
+    def _create_emergency_alert(self, risk_level: str, emergency_indicators: list) -> dict:
+        """Create emergency alert for high-risk situations"""
+        if risk_level == "critical":
+            return {
+                "is_emergency": True,
+                "severity_level": risk_level,
+                "immediate_actions": [
+                    "Call 911 or emergency services immediately",
+                    "Go to the nearest emergency room",
+                    "Do not drive yourself - call for ambulance or have someone drive you",
+                    "Bring all medications and medical information with you"
+                ],
+                "emergency_contacts": ["911", "Local Emergency Services", "Poison Control: 1-800-222-1222"],
+                "message": "This appears to be a potential medical emergency. Seek immediate professional medical attention."
+            }
+        elif risk_level == "high":
+            return {
+                "is_emergency": False,
+                "severity_level": risk_level,
+                "immediate_actions": [
+                    "Seek urgent medical attention within 2-4 hours",
+                    "Consider urgent care or emergency room",
+                    "Monitor symptoms closely",
+                    "Have someone available to assist if needed"
+                ],
+                "emergency_contacts": ["Primary Care Physician", "Urgent Care Center", "Emergency Services: 911"],
+                "message": "Urgent medical evaluation recommended. Do not delay seeking professional medical care."
+            }
+        
+        return None
 
 
 # Global instance

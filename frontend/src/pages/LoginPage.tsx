@@ -23,7 +23,7 @@ const LoginPage: React.FC = () => {
     try {
       await dispatch(login(data)).unwrap();
       toast.success('Login successful!');
-      navigate('/dashboard');
+      navigate('/app/dashboard');
     } catch (error: any) {
       toast.error(error || 'Login failed');
     }

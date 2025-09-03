@@ -14,7 +14,8 @@ import {
   uploadTestReport,
   clearError
 } from '../store/consultationSlice';
-import { SymptomData, Recommendation } from '../types';
+import { SymptomData, Recommendation, HospitalInfo, DoctorInfo, MedicalFacilityRecommendations } from '../types';
+import { locationAPI } from '../services/api';
 
 interface SymptomFormData {
   chief_complaint: string;
@@ -38,6 +39,10 @@ const ConsultationPage: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState<'create' | 'symptoms' | 'files' | 'analysis'>('create');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [userLocation, setUserLocation] = useState<string>('');
+  const [showLocationInput, setShowLocationInput] = useState(false);
+  const [facilityRecommendations, setFacilityRecommendations] = useState<MedicalFacilityRecommendations | null>(null);
+  const [isLoadingFacilities, setIsLoadingFacilities] = useState(false);
 
   const {
     register,
@@ -66,7 +71,7 @@ const ConsultationPage: React.FC = () => {
     try {
       const result = await dispatch(createConsultation()).unwrap();
       toast.success('New consultation created!');
-      navigate(`/consultation/${result.id}`);
+      navigate(`/app/consultation/${result.id}`);
     } catch (error: any) {
       toast.error(error || 'Failed to create consultation');
     }
@@ -125,11 +130,56 @@ const ConsultationPage: React.FC = () => {
     if (!currentConsultation?.id) return;
 
     try {
-      await dispatch(analyzeConsultation(currentConsultation.id)).unwrap();
+      await dispatch(analyzeConsultation({
+        id: currentConsultation.id,
+        userLocation: userLocation || undefined
+      })).unwrap();
       toast.success('Analysis completed!');
+      
+      // If location is provided, search for facilities
+      if (userLocation.trim()) {
+        await searchMedicalFacilities();
+      }
+      
       setCurrentStep('analysis');
     } catch (error: any) {
       toast.error(error || 'Analysis failed');
+    }
+  };
+
+  const searchMedicalFacilities = async () => {
+    if (!userLocation.trim() || !analysis) return;
+
+    setIsLoadingFacilities(true);
+    try {
+      // Extract possible conditions from analysis for better search
+      const possibleConditions = analysis.key_findings || [];
+      const medicalCondition = possibleConditions.length > 0 ? possibleConditions[0] : undefined;
+      
+      const searchRequest = {
+        location: userLocation,
+        medical_condition: medicalCondition,
+        radius_km: 25,
+        search_type: 'both' as const
+      };
+      
+      const response = await locationAPI.searchMedicalFacilities(searchRequest);
+      setFacilityRecommendations(response.data);
+      
+      toast.success('Found nearby medical facilities!');
+    } catch (error: any) {
+      console.error('Failed to search facilities:', error);
+      toast.error('Failed to find nearby medical facilities');
+    } finally {
+      setIsLoadingFacilities(false);
+    }
+  };
+
+  const handleLocationSearch = () => {
+    if (userLocation.trim()) {
+      searchMedicalFacilities();
+    } else {
+      toast.error('Please enter your location first');
     }
   };
 
@@ -162,7 +212,7 @@ const ConsultationPage: React.FC = () => {
           {/* Enhanced Analysis Button */}
           {currentConsultation?.id && (
             <Link
-              to={`/consultation/enhanced/${currentConsultation.id}`}
+              to={`/app/consultation/enhanced/${currentConsultation.id}`}
               className="btn btn-secondary text-xs sm:text-sm"
             >
               Enhanced Analysis
@@ -421,28 +471,75 @@ const ConsultationPage: React.FC = () => {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between mt-6">
-            <button
-              onClick={() => setCurrentStep('symptoms')}
-              className="btn-secondary w-full sm:w-auto"
-            >
-              Back to Symptoms
-            </button>
-            <button
-              onClick={handleAnalyze}
-              disabled={isAnalyzing}
-              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
-            >
-              {isAnalyzing ? (
-                <div className="flex items-center">
-                  <div className="spinner mr-2"></div>
-                  Analyzing...
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between mt-6">
+              <button
+                onClick={() => setCurrentStep('symptoms')}
+                className="btn-secondary w-full sm:w-auto"
+              >
+                Back to Symptoms
+              </button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  onClick={() => setShowLocationInput(!showLocationInput)}
+                  className="btn-secondary w-full sm:w-auto"
+                >
+                  {showLocationInput ? 'Hide Location' : 'Find Nearby Care'}
+                </button>
+                <button
+                  onClick={handleAnalyze}
+                  disabled={isAnalyzing}
+                  className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                >
+                  {isAnalyzing ? (
+                    <div className="flex items-center">
+                      <div className="spinner mr-2"></div>
+                      Analyzing...
+                    </div>
+                  ) : (
+                    'Start AI Analysis'
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Location Input Section */}
+            {showLocationInput && (
+              <div className="mt-6 p-4 bg-primary-50 rounded-lg border border-primary-200">
+                <h3 className="text-lg font-medium text-primary-900 mb-3">
+                  📍 Find Nearby Medical Care
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-primary-700 mb-2">
+                      Your Location (City, State or ZIP code)
+                    </label>
+                    <input
+                      type="text"
+                      value={userLocation}
+                      onChange={(e) => setUserLocation(e.target.value)}
+                      className="form-input"
+                      placeholder="e.g. San Francisco, CA or 90210"
+                    />
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      onClick={handleLocationSearch}
+                      disabled={!userLocation.trim() || isLoadingFacilities}
+                      className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                    >
+                      {isLoadingFacilities ? (
+                        <div className="flex items-center">
+                          <div className="spinner mr-2"></div>
+                          Searching...
+                        </div>
+                      ) : (
+                        'Search Nearby Facilities'
+                      )}
+                    </button>
+                  </div>
                 </div>
-              ) : (
-                'Start AI Analysis'
-              )}
-            </button>
-          </div>
+              </div>
+            )}
         </div>
       )}
 
@@ -611,6 +708,238 @@ const ConsultationPage: React.FC = () => {
               </p>
             </div>
           </div>
+
+          {/* Medical Facility Recommendations */}
+          {facilityRecommendations && (
+            <div className="card">
+              <h2 className="text-lg sm:text-xl font-semibold text-medical-900 mb-4 sm:mb-6">
+                🏥 Nearby Medical Care in {facilityRecommendations.search_location}
+              </h2>
+              
+              {/* Emergency Facilities */}
+              {facilityRecommendations.emergency_facilities.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-danger-800 mb-3 flex items-center">
+                    🆘 Emergency Care
+                    <span className="ml-2 text-xs bg-danger-100 text-danger-800 px-2 py-1 rounded-full">
+                      24/7
+                    </span>
+                  </h3>
+                  <div className="grid gap-4">
+                    {facilityRecommendations.emergency_facilities.slice(0, 3).map((facility, index) => (
+                      <div key={index} className="p-4 bg-danger-50 border border-danger-200 rounded-lg">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-semibold text-danger-900">{facility.name}</h4>
+                          {facility.rating && (
+                            <span className="text-sm text-danger-600">
+                              ⭐ {facility.rating}/5
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-danger-700 mb-2">{facility.address}</p>
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          <span className="bg-danger-200 text-danger-800 px-2 py-1 rounded">
+                            {facility.phone}
+                          </span>
+                          {facility.distance_km && (
+                            <span className="bg-danger-200 text-danger-800 px-2 py-1 rounded">
+                              {facility.distance_km} km away
+                            </span>
+                          )}
+                          {facility.wait_time_minutes && (
+                            <span className="bg-warning-200 text-warning-800 px-2 py-1 rounded">
+                              ~{facility.wait_time_minutes} min wait
+                            </span>
+                          )}
+                        </div>
+                        {facility.directions_url && (
+                          <a
+                            href={facility.directions_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block mt-2 text-sm text-danger-600 hover:text-danger-800 font-medium"
+                          >
+                            Get Directions →
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Hospitals */}
+              {facilityRecommendations.hospitals.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-primary-800 mb-3">
+                    🏥 Hospitals
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {facilityRecommendations.hospitals.slice(0, 4).map((hospital, index) => (
+                      <div key={index} className="p-4 bg-white border border-primary-200 rounded-lg hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-semibold text-primary-900">{hospital.name}</h4>
+                          {hospital.rating && (
+                            <span className="text-sm text-primary-600">
+                              ⭐ {hospital.rating}/5
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-primary-700 mb-2">{hospital.address}</p>
+                        {hospital.description && (
+                          <p className="text-xs text-medical-600 mb-2">{hospital.description}</p>
+                        )}
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          <span className="bg-primary-100 text-primary-800 px-2 py-1 rounded">
+                            {hospital.phone}
+                          </span>
+                          {hospital.distance_km && (
+                            <span className="bg-primary-100 text-primary-800 px-2 py-1 rounded">
+                              {hospital.distance_km} km
+                            </span>
+                          )}
+                          {hospital.emergency_services && (
+                            <span className="bg-success-100 text-success-800 px-2 py-1 rounded">
+                              ER Available
+                            </span>
+                          )}
+                        </div>
+                        {hospital.directions_url && (
+                          <a
+                            href={hospital.directions_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block mt-2 text-sm text-primary-600 hover:text-primary-800 font-medium"
+                          >
+                            Get Directions →
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Doctors */}
+              {facilityRecommendations.doctors.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-success-800 mb-3">
+                    👩‍⚕️ Healthcare Providers
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {facilityRecommendations.doctors.slice(0, 6).map((doctor, index) => (
+                      <div key={index} className="p-4 bg-white border border-success-200 rounded-lg hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-semibold text-success-900">{doctor.name}</h4>
+                          {doctor.rating && (
+                            <span className="text-sm text-success-600">
+                              ⭐ {doctor.rating}/5
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-success-700 mb-1">{doctor.specialty}</p>
+                        {doctor.practice_name && (
+                          <p className="text-xs text-medical-600 mb-2">{doctor.practice_name}</p>
+                        )}
+                        <p className="text-sm text-success-700 mb-2">{doctor.address}</p>
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          <span className="bg-success-100 text-success-800 px-2 py-1 rounded">
+                            {doctor.phone}
+                          </span>
+                          {doctor.distance_km && (
+                            <span className="bg-success-100 text-success-800 px-2 py-1 rounded">
+                              {doctor.distance_km} km
+                            </span>
+                          )}
+                          {doctor.accepts_new_patients ? (
+                            <span className="bg-success-200 text-success-800 px-2 py-1 rounded">
+                              Accepting Patients
+                            </span>
+                          ) : (
+                            <span className="bg-warning-100 text-warning-800 px-2 py-1 rounded">
+                              Waitlist
+                            </span>
+                          )}
+                        </div>
+                        {doctor.next_available && (
+                          <p className="text-xs text-medical-600 mt-1">
+                            Next available: {doctor.next_available}
+                          </p>
+                        )}
+                        {doctor.directions_url && (
+                          <a
+                            href={doctor.directions_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block mt-2 text-sm text-success-600 hover:text-success-800 font-medium"
+                          >
+                            Get Directions →
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Urgent Care */}
+              {facilityRecommendations.urgent_care.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-warning-800 mb-3">
+                    ⚡ Urgent Care Centers
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {facilityRecommendations.urgent_care.slice(0, 4).map((facility, index) => (
+                      <div key={index} className="p-4 bg-warning-50 border border-warning-200 rounded-lg">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-semibold text-warning-900">{facility.name}</h4>
+                          {facility.rating && (
+                            <span className="text-sm text-warning-600">
+                              ⭐ {facility.rating}/5
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-warning-700 mb-2">{facility.address}</p>
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          <span className="bg-warning-200 text-warning-800 px-2 py-1 rounded">
+                            {facility.phone}
+                          </span>
+                          {facility.distance_km && (
+                            <span className="bg-warning-200 text-warning-800 px-2 py-1 rounded">
+                              {facility.distance_km} km
+                            </span>
+                          )}
+                          {facility.wait_time_minutes && (
+                            <span className="bg-warning-200 text-warning-800 px-2 py-1 rounded">
+                              ~{facility.wait_time_minutes} min wait
+                            </span>
+                          )}
+                        </div>
+                        {facility.directions_url && (
+                          <a
+                            href={facility.directions_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block mt-2 text-sm text-warning-600 hover:text-warning-800 font-medium"
+                          >
+                            Get Directions →
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Search Info */}
+              <div className="mt-6 p-3 bg-medical-50 rounded border text-xs text-medical-600">
+                <p>
+                  **Medical facility search powered by location-based recommendations. 
+                  Always verify insurance coverage and availability before visiting.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between">
             <button

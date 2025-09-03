@@ -73,9 +73,9 @@ export const submitSymptoms = createAsyncThunk(
 
 export const analyzeConsultation = createAsyncThunk(
   'consultation/analyze',
-  async (consultationId: string, { rejectWithValue }) => {
+  async ({ id, userLocation }: { id: string; userLocation?: string }, { rejectWithValue }) => {
     try {
-      const response = await consultationAPI.analyze(consultationId);
+      const response = await consultationAPI.analyze(id, userLocation);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Analysis failed');

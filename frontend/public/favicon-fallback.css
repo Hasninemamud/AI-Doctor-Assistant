@@ -1,0 +1,20 @@
+/* Simple CSS-based favicon fallback for older browsers */
+.favicon-fallback {
+  width: 32px;
+  height: 32px;
+  background: #0ea5e9;
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+}
+
+.favicon-fallback::before {
+  content: '+';
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

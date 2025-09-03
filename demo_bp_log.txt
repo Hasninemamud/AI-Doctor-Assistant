@@ -1,0 +1,97 @@
+HOME BLOOD PRESSURE MONITORING LOG
+===================================
+
+Patient: Sarah Johnson (DEMO)
+Device: Omron BP742N Digital Monitor
+Monitoring Period: August 1-21, 2024
+Arm Used: Left arm (as instructed)
+Position: Seated, feet flat, arm at heart level
+
+DAILY READINGS (Morning & Evening):
+===================================
+
+WEEK 1 (Aug 1-7):
+----------------
+Aug 1  Morning: 120/78  Evening: 122/80  Notes: Normal day
+Aug 2  Morning: 118/75  Evening: 125/82  Notes: Mild headache afternoon
+Aug 3  Morning: 124/80  Evening: 132/85  Notes: Headache episode, stress
+Aug 4  Morning: 119/76  Evening: 121/79  Notes: Recovery day
+Aug 5  Morning: 121/78  Evening: 135/88  Notes: Severe headache with aura
+Aug 6  Morning: 126/82  Evening: 128/84  Notes: Post-headache fatigue
+Aug 7  Morning: 118/75  Evening: 120/77  Notes: Good day, adequate sleep
+
+Week 1 Average: 128/82 mmHg
+
+WEEK 2 (Aug 8-14):
+----------------
+Aug 8  Morning: 125/81  Evening: 142/92  Notes: Severe headache, nausea
+Aug 9  Morning: 130/85  Evening: 135/87  Notes: Residual symptoms
+Aug 10 Morning: 140/90  Evening: 145/95  Notes: Worst headache yet, ER visit
+Aug 11 Morning: 135/88  Evening: 130/85  Notes: Post-ER, on new medication
+Aug 12 Morning: 128/82  Evening: 138/89  Notes: Moderate headache
+Aug 13 Morning: 122/79  Evening: 125/81  Notes: Stable day
+Aug 14 Morning: 129/83  Evening: 148/94  Notes: Fluorescent light trigger
+
+Week 2 Average: 135/88 mmHg
+
+WEEK 3 (Aug 15-21):
+----------------
+Aug 15 Morning: 145/92  Evening: 158/98  Notes: Severe episode, vomiting
+Aug 16 Morning: 138/89  Evening: 132/86  Notes: Recovery, anxiety high
+Aug 17 Morning: 125/81  Evening: 127/83  Notes: Visual aura without headache
+Aug 18 Morning: 130/85  Evening: 135/87  Notes: Concerned about symptoms
+Aug 19 Morning: 142/91  Evening: 152/96  Notes: Speech difficulties
+Aug 20 Morning: 140/88  Evening: 138/86  Notes: Persistent low-grade headache
+Aug 21 Morning: 136/87  Evening: 134/85  Notes: Ongoing symptoms
+
+Week 3 Average: 142/92 mmHg
+
+CORRELATION ANALYSIS:
+====================
+Baseline BP (symptom-free): 118-122/75-80 mmHg
+During headache episodes: 135-158/85-98 mmHg
+Hypertensive readings during severe episodes: >140/90 mmHg
+
+CONCERNING PATTERNS:
+===================
+• Progressive increase in baseline BP over 3 weeks
+• Significant spikes during headache episodes
+• Some readings approaching Stage 2 Hypertension (≥140/90)
+• BP elevation preceding some headache episodes
+
+MEDICATION IMPACT:
+=================
+• Sumatriptan (started Aug 10): Temporary BP increase post-dose
+• Ibuprofen: Minimal effect on BP
+• Pain-related stress causing BP elevation
+
+LIFESTYLE FACTORS:
+=================
+• Sleep quality: Poor during headache weeks
+• Stress level: High (work deadlines)
+• Caffeine intake: Variable (affects both BP and headaches)
+• Physical activity: Reduced due to headaches
+
+RECOMMENDATIONS FOR DOCTOR:
+==========================
+1. Evaluate relationship between BP and headaches
+2. Consider cardiovascular workup
+3. Review hypertension risk factors
+4. Assess medication effects on BP
+5. Lifestyle modification counseling
+
+Device Calibration: Last checked August 1, 2024 (accurate)
+Cuff Size: Standard adult (arm circumference 28cm)
+
+Patient Notes:
+"I noticed my blood pressure seems to go up before and during my headaches. 
+Sometimes I feel my heart pounding during the severe episodes. 
+Should I be concerned about my heart?"
+
+Healthcare Provider Review Required: YES
+Urgent Follow-up Needed: YES (BP readings >140/90)
+
+Signature: Sarah Johnson (DEMO)
+Date: August 21, 2024
+
+DISCLAIMER: This is a DEMO document for software testing purposes only.

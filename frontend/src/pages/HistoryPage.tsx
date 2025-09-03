@@ -59,7 +59,7 @@ const HistoryPage: React.FC = () => {
 
   const handleConsultationClick = (consultation: Consultation) => {
     dispatch(setCurrentConsultation(consultation));
-    navigate(`/consultation/${consultation.id}`);
+    navigate(`/app/consultation/${consultation.id}`);
   };
 
   const getStatusColor = (status: string) => {
@@ -112,7 +112,7 @@ const HistoryPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-xl sm:text-2xl font-bold text-medical-900">Consultation History</h1>
         <Link
-          to="/consultation"
+          to="/app/consultation"
           className="btn-primary w-full sm:w-auto text-center"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,7 +272,7 @@ const HistoryPage: React.FC = () => {
           </p>
           {(!searchTerm && filterStatus === 'all') && (
             <Link
-              to="/consultation"
+              to="/app/consultation"
               className="btn-primary w-full sm:w-auto"
             >
               Start First Consultation

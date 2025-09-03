@@ -31,7 +31,8 @@ class AIAnalysisService:
         symptoms: Optional[Dict[str, Any]] = None,
         test_report_text: Optional[str] = None,
         medical_history: Optional[Dict[str, Any]] = None,
-        chief_complaint: Optional[str] = None
+        chief_complaint: Optional[str] = None,
+        user_location: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Analyze medical consultation data using AI
@@ -41,6 +42,7 @@ class AIAnalysisService:
             test_report_text: Extracted text from test reports
             medical_history: Patient medical history
             chief_complaint: Chief complaint description
+            user_location: User's location for facility recommendations
             
         Returns:
             Dict[str, Any]: AI analysis results
@@ -49,7 +51,7 @@ class AIAnalysisService:
         if not self.api_key:
             return self._create_fallback_analysis(
                 "OpenRouter API key not configured. Please set OPENROUTER_API_KEY in your .env file.",
-                symptoms, test_report_text, medical_history, chief_complaint
+                symptoms, test_report_text, medical_history, chief_complaint, user_location
             )
         
         # Prepare context for AI analysis
@@ -57,8 +59,8 @@ class AIAnalysisService:
             symptoms, test_report_text, medical_history, chief_complaint
         )
         
-        # Create AI prompt
-        prompt = self._create_analysis_prompt(context)
+        # Create AI prompt with location awareness
+        prompt = self._create_analysis_prompt(context, user_location)
         
         try:
             # Call OpenRouter API
@@ -67,13 +69,19 @@ class AIAnalysisService:
             # Parse and structure the response
             analysis_result = self._parse_ai_response(response)
             
+            # Add location-based recommendations if location provided
+            if user_location and analysis_result.get("possible_conditions"):
+                analysis_result = await self._add_location_recommendations(
+                    analysis_result, user_location
+                )
+            
             return analysis_result
             
         except Exception as e:
             # Return fallback analysis with error details
             return self._create_fallback_analysis(
                 f"AI analysis failed: {str(e)}",
-                symptoms, test_report_text, medical_history, chief_complaint
+                symptoms, test_report_text, medical_history, chief_complaint, user_location
             )
     
     def _prepare_medical_context(
@@ -128,19 +136,24 @@ class AIAnalysisService:
         
         return "\n".join(context_parts)
     
-    def _create_analysis_prompt(self, context: str) -> str:
+    def _create_analysis_prompt(self, context: str, user_location: Optional[str] = None) -> str:
         """
         Create AI analysis prompt
         
         Args:
             context: Medical context
+            user_location: User's location for location-aware recommendations
             
         Returns:
             str: AI prompt
         """
+        location_context = ""
+        if user_location:
+            location_context = f"\nPATIENT LOCATION: {user_location}\nPlease consider the patient's location when making recommendations for follow-up care and specialist referrals.\n"
+        
         prompt = f"""You are an AI medical assistant analyzing a patient consultation. Please provide a comprehensive analysis based on the following information:
 
-{context}
+{context}{location_context}
 
 Please provide your analysis in the following JSON format:
 
@@ -417,7 +430,8 @@ Please analyze the patient information and respond with valid JSON only."""
         symptoms: Optional[Dict[str, Any]] = None,
         test_report_text: Optional[str] = None,
         medical_history: Optional[Dict[str, Any]] = None,
-        chief_complaint: Optional[str] = None
+        chief_complaint: Optional[str] = None,
+        user_location: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Create a comprehensive fallback analysis when AI service is unavailable
@@ -428,6 +442,7 @@ Please analyze the patient information and respond with valid JSON only."""
             test_report_text: Test report text
             medical_history: Medical history
             chief_complaint: Chief complaint
+            user_location: User's location for basic recommendations
             
         Returns:
             Dict[str, Any]: Fallback analysis
@@ -486,7 +501,7 @@ Please analyze the patient information and respond with valid JSON only."""
         # Generate key findings
         key_findings = self._generate_fallback_findings(symptoms, chief_complaint, severity_score)
         
-        return {
+        fallback_result = {
             "summary": self._generate_fallback_summary(risk_level, error_message, chief_complaint),
             "risk_level": risk_level,
             "key_findings": key_findings,
@@ -506,6 +521,20 @@ Please analyze the patient information and respond with valid JSON only."""
             "created_at": datetime.utcnow(),
             "emergency_alert": self._create_emergency_alert(risk_level, emergency_indicators) if risk_level in ["high", "critical"] else None
         }
+        
+        # Add basic location recommendations if location is provided
+        if user_location:
+            fallback_result["location_recommendations"] = {
+                "user_location": user_location,
+                "note": "AI analysis unavailable. Please search for local healthcare providers manually.",
+                "general_advice": [
+                    f"Contact local hospitals in {user_location} for medical evaluation",
+                    f"Consider urgent care centers in {user_location} for non-emergency concerns",
+                    f"Call 911 if experiencing a medical emergency in {user_location}"
+                ]
+            }
+        
+        return fallback_result
     
     def _generate_fallback_recommendations(self, risk_level: str, severity_score: float, emergency_indicators: list) -> list:
         """Generate appropriate recommendations based on risk assessment"""
@@ -639,7 +668,170 @@ Please analyze the patient information and respond with valid JSON only."""
                 "message": "Urgent medical evaluation recommended. Do not delay seeking professional medical care."
             }
         
-        return None
+    async def _add_location_recommendations(
+        self, 
+        analysis_result: Dict[str, Any], 
+        user_location: str
+    ) -> Dict[str, Any]:
+        """
+        Add location-based hospital and doctor recommendations to analysis result
+        
+        Args:
+            analysis_result: Existing AI analysis result
+            user_location: User's location
+            
+        Returns:
+            Dict[str, Any]: Enhanced analysis result with location recommendations
+        """
+        try:
+            # Import here to avoid circular imports
+            from app.services.location_medical_service import location_medical_service
+            
+            # Extract diagnosed conditions from analysis
+            diagnosed_conditions = []
+            if "possible_conditions" in analysis_result:
+                conditions = analysis_result["possible_conditions"]
+                if isinstance(conditions, list):
+                    for condition in conditions:
+                        if isinstance(condition, dict) and "condition" in condition:
+                            diagnosed_conditions.append(condition["condition"])
+                        elif isinstance(condition, str):
+                            diagnosed_conditions.append(condition)
+            
+            # Get facility recommendations
+            if diagnosed_conditions:
+                risk_level = analysis_result.get("risk_level", "moderate")
+                
+                facility_recommendations = await location_medical_service.get_recommended_facilities_for_condition(
+                    location=user_location,
+                    diagnosed_conditions=diagnosed_conditions,
+                    risk_level=risk_level
+                )
+                
+                # Add location recommendations to the analysis result
+                analysis_result["location_recommendations"] = {
+                    "user_location": user_location,
+                    "facility_search_results": facility_recommendations,
+                    "location_based_advice": self._generate_location_advice(
+                        diagnosed_conditions, risk_level, user_location, facility_recommendations
+                    )
+                }
+                
+                # Enhance existing recommendations with location-specific advice
+                existing_recommendations = analysis_result.get("recommendations", [])
+                location_enhanced_recommendations = self._enhance_recommendations_with_location(
+                    existing_recommendations, user_location, facility_recommendations
+                )
+                analysis_result["recommendations"] = location_enhanced_recommendations
+            
+            return analysis_result
+            
+        except Exception as e:
+            # If location recommendations fail, return original analysis with error note
+            analysis_result["location_recommendations"] = {
+                "user_location": user_location,
+                "error": f"Unable to fetch location-based recommendations: {str(e)}",
+                "note": "Please search for local healthcare providers manually."
+            }
+            return analysis_result
+    
+    def _generate_location_advice(
+        self, 
+        conditions: List[str], 
+        risk_level: str, 
+        location: str,
+        facility_data: Dict[str, Any]
+    ) -> List[str]:
+        """
+        Generate location-specific medical advice
+        
+        Args:
+            conditions: Diagnosed conditions
+            risk_level: Risk level from analysis
+            location: User location
+            facility_data: Available facilities data
+            
+        Returns:
+            List[str]: Location-specific advice
+        """
+        advice = []
+        
+        if risk_level in ["critical", "high"]:
+            emergency_count = len(facility_data.get("emergency_facilities", []))
+            if emergency_count > 0:
+                advice.append(f"Seek immediate emergency care - {emergency_count} emergency facilities found in {location}")
+            else:
+                advice.append(f"Seek immediate emergency care - contact 911 or go to the nearest hospital in {location}")
+        
+        hospital_count = len(facility_data.get("hospitals", []))
+        doctor_count = len(facility_data.get("doctors", []))
+        
+        if hospital_count > 0:
+            advice.append(f"Found {hospital_count} hospitals in {location} for comprehensive medical care")
+        
+        if doctor_count > 0:
+            advice.append(f"Located {doctor_count} healthcare providers in {location} for follow-up care")
+        
+        # Add specialty-specific advice
+        specialist_recs = facility_data.get("specialist_recommendations", {})
+        for specialty, data in specialist_recs.items():
+            specialist_count = len(data.get("doctors", []))
+            if specialist_count > 0:
+                advice.append(f"Found {specialist_count} {specialty} specialists in your area")
+        
+        if not advice:
+            advice.append(f"Please consult with healthcare providers in {location} for further evaluation")
+        
+        return advice
+    
+    def _enhance_recommendations_with_location(
+        self, 
+        recommendations: List[Dict[str, Any]], 
+        location: str,
+        facility_data: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Enhance existing recommendations with location-specific information
+        
+        Args:
+            recommendations: Existing recommendations
+            location: User location
+            facility_data: Available facilities
+            
+        Returns:
+            List[Dict[str, Any]]: Enhanced recommendations
+        """
+        enhanced = recommendations.copy()
+        
+        # Add location-specific recommendations
+        if facility_data.get("emergency_facilities"):
+            enhanced.insert(0, {
+                "category": "emergency_access",
+                "action": f"Emergency facilities are available in {location} if symptoms worsen significantly",
+                "priority": "high",
+                "timeline": "If needed immediately",
+                "location_specific": True
+            })
+        
+        if facility_data.get("urgent_care"):
+            enhanced.append({
+                "category": "urgent_care_access",
+                "action": f"Urgent care centers in {location} are available for non-emergency concerns",
+                "priority": "medium",
+                "timeline": "Within 24 hours if symptoms persist",
+                "location_specific": True
+            })
+        
+        if facility_data.get("doctors"):
+            enhanced.append({
+                "category": "local_follow_up",
+                "action": f"Schedule follow-up with healthcare providers in {location}",
+                "priority": "medium",
+                "timeline": "Within 1-2 weeks",
+                "location_specific": True
+            })
+        
+        return enhanced
 
 
 # Global instance

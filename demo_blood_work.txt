@@ -1,0 +1,48 @@
+COMPLETE BLOOD COUNT (CBC) REPORT
+==========================================
+
+Patient Information:
+Name: Sarah Johnson (DEMO)
+DOB: 1989-03-15
+Patient ID: DEMO001
+Date of Collection: 2024-08-27
+Date of Report: 2024-08-28
+
+Ordering Physician: Dr. Michael Chen, MD
+Laboratory: Central Medical Lab
+
+TEST RESULTS:
+==========================================
+
+COMPLETE BLOOD COUNT
+--------------------
+White Blood Cell Count     6.8      (4.5-11.0) x10³/μL    NORMAL
+Red Blood Cell Count       4.5      (4.0-5.5) x10⁶/μL     NORMAL
+Hemoglobin                13.2      (12.0-15.5) g/dL       NORMAL
+Hematocrit                39.8      (36.0-46.0) %          NORMAL
+Platelet Count           285       (150-450) x10³/μL       NORMAL
+
+DIFFERENTIAL COUNT
+------------------
+Neutrophils              62.5      (50-70) %               NORMAL
+Lymphocytes              28.2      (20-40) %               NORMAL
+Monocytes                 6.8      (2-10) %                NORMAL
+Eosinophils               2.1      (1-4) %                 NORMAL
+Basophils                 0.4      (0-2) %                 NORMAL
+
+ADDITIONAL TESTS
+----------------
+ESR (Erythrocyte Sed Rate) 12      (0-20) mm/hr            NORMAL
+C-Reactive Protein         1.2     (<3.0) mg/L             NORMAL
+
+CLINICAL NOTES:
+- All values within normal reference ranges
+- No signs of infection or inflammation
+- Results consistent with healthy adult female
+- Recommend follow-up with primary physician for headache evaluation
+
+Laboratory Director: Dr. Patricia Wong, MD
+Report Date: August 28, 2024
+
+DISCLAIMER: This is a DEMO document for software testing purposes only.
+Do not use for actual medical decisions.

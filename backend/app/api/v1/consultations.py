@@ -275,7 +275,13 @@ async def analyze_consultation(
     
     # Perform AI analysis
     try:
-        ai_result = await ai_analysis_service.analyze_consultation(**analysis_data)
+        ai_result = await ai_analysis_service.analyze_consultation(
+            symptoms=analysis_data.get("symptoms"),
+            test_report_text=analysis_data.get("test_report_text"),
+            medical_history=analysis_data.get("medical_history"),
+            chief_complaint=analysis_data.get("chief_complaint"),
+            user_location=analysis_request.user_location
+        )
         
         # Save analysis to database
         analysis = Analysis(

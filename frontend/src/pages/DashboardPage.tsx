@@ -24,7 +24,7 @@ const DashboardPage: React.FC = () => {
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <Link
-            to="/consultation"
+            to="/app/consultation"
             className="bg-white text-primary-600 px-4 py-2 rounded-lg font-medium hover:bg-primary-50 transition-colors text-center text-sm sm:text-base"
           >
             Start New Consultation

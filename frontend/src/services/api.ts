@@ -6,7 +6,13 @@ import {
   User, 
   Consultation,
   MedicalHistory,
-  AnalysisResponse 
+  AnalysisResponse,
+  LocationSearchRequest,
+  MedicalFacilityRecommendations,
+  HospitalInfo,
+  DoctorInfo,
+  LocationBasedAnalysisRequest,
+  EnhancedAnalysisWithLocation
 } from '../types';
 
 // Create axios instance
@@ -119,12 +125,13 @@ export const consultationAPI = {
   submitSymptoms: (id: string, symptomsData: any): Promise<AxiosResponse<Consultation>> =>
     api.post(`/consultations/${id}/symptoms`, symptomsData),
     
-  analyze: (id: string): Promise<AxiosResponse<AnalysisResponse>> =>
+  analyze: (id: string, userLocation?: string): Promise<AxiosResponse<AnalysisResponse>> =>
     api.post(`/consultations/${id}/analyze`, {
       consultation_id: id,
       include_test_reports: true,
       include_symptoms: true,
       include_medical_history: true,
+      user_location: userLocation,
     }),
     
   getAnalyses: (id: string): Promise<AxiosResponse<any[]>> =>
@@ -149,6 +156,24 @@ export const fileAPI = {
     
   deleteFile: (fileId: string): Promise<AxiosResponse<any>> =>
     api.delete(`/files/${fileId}`),
+};
+
+// Location-based Medical Facility Search API
+export const locationAPI = {
+  searchHospitals: (searchRequest: LocationSearchRequest): Promise<AxiosResponse<HospitalInfo[]>> =>
+    api.post('/location/search-hospitals', searchRequest),
+    
+  searchDoctors: (searchRequest: LocationSearchRequest): Promise<AxiosResponse<DoctorInfo[]>> =>
+    api.post('/location/search-doctors', searchRequest),
+    
+  searchMedicalFacilities: (searchRequest: LocationSearchRequest): Promise<AxiosResponse<MedicalFacilityRecommendations>> =>
+    api.post('/location/search-medical-facilities', searchRequest),
+    
+  getLocationAnalysis: (consultationId: string, locationRequest: LocationBasedAnalysisRequest): Promise<AxiosResponse<EnhancedAnalysisWithLocation>> =>
+    api.post(`/location/${consultationId}/location-analysis`, locationRequest),
+    
+  getEmergencyFacilities: (location: string): Promise<AxiosResponse<HospitalInfo[]>> =>
+    api.get(`/location/emergency-facilities?location=${encodeURIComponent(location)}`),
 };
 
 export default api;

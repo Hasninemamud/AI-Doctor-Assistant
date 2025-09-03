@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .icon-generator {
+            display: none;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="icon-generator">
+        <canvas id="canvas192" width="192" height="192"></canvas>
+        <canvas id="canvas512" width="512" height="512"></canvas>
+    </div>
+    
+    <script>
+        // Create medical cross icon programmatically
+        function drawMedicalIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Background circle
+            ctx.fillStyle = '#0ea5e9';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // White medical cross
+            ctx.fillStyle = '#ffffff';
+            
+            // Horizontal bar
+            const barWidth = size * 0.5;
+            const barHeight = size * 0.2;
+            const centerX = size / 2;
+            const centerY = size / 2;
+            
+            ctx.fillRect(centerX - barWidth/2, centerY - barHeight/2, barWidth, barHeight);
+            
+            // Vertical bar
+            ctx.fillRect(centerX - barHeight/2, centerY - barWidth/2, barHeight, barWidth);
+        }
+        
+        // Generate icons
+        const canvas192 = document.getElementById('canvas192');
+        const canvas512 = document.getElementById('canvas512');
+        
+        drawMedicalIcon(canvas192, 192);
+        drawMedicalIcon(canvas512, 512);
+        
+        // Convert to blob and create download (for manual save if needed)
+        function downloadCanvas(canvas, filename) {
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+    </script>
+</body>
+</html>

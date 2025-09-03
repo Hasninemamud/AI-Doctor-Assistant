@@ -6,7 +6,7 @@
 [![React](https://img.shields.io/badge/React-18+-blue.svg)]()
 [![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green.svg)]()
 
-A comprehensive AI-powered medical consultation platform that provides intelligent analysis of medical test reports and patient symptoms. Built with modern web technologies and integrated with OpenAI's GPT-4 for advanced medical reasoning.
+A comprehensive AI-powered medical consultation platform that provides intelligent analysis of medical test reports and patient symptoms. Built with modern web technologies and integrated with OpenRouter API for advanced medical reasoning.
 
 ## Overview
 
@@ -14,11 +14,14 @@ The AI Doctor Assistant is a full-stack web application designed to assist healt
 
 ### Key Capabilities
 
+- **Comprehensive Landing Page**: User-friendly introduction with detailed guidance on app usage
 - **Medical Document Processing**: Advanced OCR and PDF extraction for test reports and medical images
 - **Intelligent Symptom Analysis**: Structured symptom collection with severity assessment and timeline tracking
-- **AI-Powered Medical Assessment**: Integration with OpenAI GPT-4 for medical reasoning and analysis
-- **Emergency Detection**: Automated identification of potentially critical conditions
+- **AI-Powered Medical Assessment**: Integration with OpenRouter API for medical reasoning and analysis
+- **Emergency Detection**: Automated identification of potentially critical conditions with specialized models
+- **Enhanced Consultation System**: Multi-step consultation process with timeline analysis
 - **Comprehensive Medical History**: Patient data management and consultation tracking
+- **Demo Health Cases**: Pre-built realistic medical scenarios for testing and demonstration
 - **Professional Security**: JWT authentication with secure token management
 
 ## Architecture
@@ -29,16 +32,19 @@ The AI Doctor Assistant is a full-stack web application designed to assist healt
 - FastAPI with automatic OpenAPI documentation
 - PostgreSQL with SQLAlchemy ORM
 - JWT-based authentication system
-- OpenAI GPT-4 integration
-- Tesseract OCR for image processing
+- OpenRouter API integration with multiple AI models
+- httpx for HTTP requests
 - Pydantic for data validation
+- Enhanced medical analysis with specialized models
 
 **Frontend**
 - React 18 with TypeScript
 - Redux Toolkit for state management
 - Tailwind CSS for styling
 - React Hook Form for form management
-- Axios for API communication
+- React Dropzone for file uploads
+- Heroicons for consistent iconography
+- Comprehensive landing page with user guidance
 
 **Infrastructure**
 - Docker containerization
@@ -54,7 +60,7 @@ The AI Doctor Assistant is a full-stack web application designed to assist healt
 - Node.js 18+
 - PostgreSQL 13+
 - Docker (optional, recommended)
-- OpenAI API key
+- OpenRouter API key
 
 ### Quick Start with Docker
 
@@ -118,7 +124,7 @@ npm start
 ```bash
 DATABASE_URL=postgresql://user:password@localhost:5432/ai_doctor_db
 SECRET_KEY=your-secure-secret-key-minimum-32-characters
-OPENAI_API_KEY=your-openai-api-key
+OPENROUTER_API_KEY=your-openrouter-api-key
 MAX_FILE_SIZE=10485760
 UPLOAD_DIRECTORY=./uploaded_files
 ACCESS_TOKEN_EXPIRE_MINUTES=30
@@ -146,6 +152,11 @@ REACT_APP_API_URL=http://localhost:8000
 #### Enhanced Consultations
 - `POST /api/v1/enhanced-consultations/` - Create enhanced consultation
 - `POST /api/v1/enhanced-consultations/{id}/timeline-analysis` - Timeline analysis
+- `POST /api/v1/enhanced-consultations/{id}/specialized-analysis` - Specialized analysis
+
+#### Timeline Management
+- `POST /api/v1/consultations/{id}/timeline` - Add timeline entry
+- `GET /api/v1/consultations/{id}/timeline` - Get consultation timeline
 
 #### File Management
 - `POST /api/v1/files/upload/{consultation_id}` - Upload medical documents
@@ -159,6 +170,25 @@ Access comprehensive API documentation at:
 
 ## Usage
 
+### Getting Started
+
+#### Landing Page
+Visit the application at `http://localhost:3000/` to access the comprehensive landing page that provides:
+- Detailed explanation of the app's goals and mission
+- Step-by-step guidance on getting primary-level medical treatment
+- Instructions for uploading medical documents
+- Feature overview and usage guidelines
+- Important medical disclaimers
+
+#### User Journey
+1. **Landing Page**: Learn about the app and its capabilities
+2. **Registration/Login**: Create account or sign in
+3. **Dashboard**: Access main application features
+4. **New Consultation**: Start medical consultation process
+5. **Document Upload**: Upload medical reports and test results
+6. **AI Analysis**: Receive intelligent medical insights
+7. **History**: Review past consultations and analyses
+
 ### Basic Workflow
 
 1. **User Registration**: Create account with secure authentication
@@ -170,10 +200,14 @@ Access comprehensive API documentation at:
 
 ### Enhanced Features
 
-- **Timeline Analysis**: Track medical progression over time
-- **Specialized Analysis**: Domain-specific medical evaluations
-- **Emergency Detection**: Automated critical condition identification
-- **Medical History**: Comprehensive patient data management
+- **Landing Page**: Comprehensive introduction and user guidance
+- **Timeline Analysis**: Track medical progression over time with pattern detection
+- **Specialized Analysis**: Domain-specific medical evaluations with multiple AI models
+- **Emergency Detection**: Automated critical condition identification with rapid screening
+- **Medical History**: Comprehensive patient data management with search and filtering
+- **Demo Health Cases**: Pre-built realistic scenarios for testing (see DEMO_HEALTH_ISSUE.md)
+- **Multi-Model AI**: Integration with multiple AI providers for reliable analysis
+- **Pattern Recognition**: Advanced symptom clustering and temporal analysis
 
 ## Development
 
@@ -193,14 +227,29 @@ BuildCreative/
 ├── frontend/                   # React application
 │   ├── src/
 │   │   ├── components/        # Reusable components
-│   │   ├── pages/             # Page components
+│   │   ├── pages/             # Page components (including LandingPage)
 │   │   ├── store/             # Redux state management
 │   │   ├── services/          # API services
 │   │   └── types/             # TypeScript definitions
+│   ├── public/                # Static assets and manifest
 │   └── package.json           # Node.js dependencies
 ├── docker-compose.yml          # Container orchestration
+├── DEMO_HEALTH_ISSUE.md        # Comprehensive demo case
+├── HOW_TO_USE_DEMO.md          # Demo usage instructions
 └── README.md                   # Documentation
 ```
+
+## Demo and Testing
+
+### Demo Health Issue
+A comprehensive demo health case is provided to showcase the application's capabilities:
+
+- **Patient Case**: Recurring headaches with visual disturbances (Sarah Johnson)
+- **Timeline**: 3-week symptom progression with escalating severity
+- **Documents**: Sample blood work, symptom diary, and blood pressure logs
+- **Features Demonstrated**: Pattern detection, risk assessment, emergency flagging
+
+See `DEMO_HEALTH_ISSUE.md` and `HOW_TO_USE_DEMO.md` for complete details.
 
 ### Testing
 
@@ -223,7 +272,7 @@ python test_main.py
 
 - [ ] Configure secure SECRET_KEY
 - [ ] Set up production database
-- [ ] Configure OpenAI API access
+- [ ] Configure OpenRouter API access
 - [ ] Set up SSL certificates
 - [ ] Configure CORS policies
 - [ ] Set up monitoring and logging
@@ -236,7 +285,7 @@ python test_main.py
 # Production deployment
 export POSTGRES_PASSWORD=secure-password
 export SECRET_KEY=production-secret-key
-export OPENAI_API_KEY=your-api-key
+export OPENROUTER_API_KEY=your-api-key
 
 docker-compose -f docker-compose.yml up -d
 ```
@@ -259,6 +308,28 @@ docker-compose -f docker-compose.yml up -d
 - Database access controls
 - File upload restrictions
 - API rate limiting
+
+## AI Features and Capabilities
+
+### Multiple AI Model Integration
+The system leverages OpenRouter API to access various AI models optimized for medical reasoning:
+- **Primary Model**: openai/gpt-oss-120b:free
+- **Backup Models**: microsoft/wizardlm-2-8x22b:free, meta-llama/llama-3.1-8b-instruct:free, google/gemma-2-9b-it:free
+- **Fallback Mechanisms**: Automatic model switching for reliability
+
+### Specialized Medical Analysis
+- **Emergency Screening**: Rapid detection of critical conditions
+- **Clinical Analysis**: Comprehensive differential diagnosis
+- **Timeline Analysis**: Pattern detection and symptom progression tracking
+- **Risk Assessment**: Structured risk level evaluation (low/moderate/high/critical)
+- **Confidence Scoring**: AI confidence levels for each analysis
+
+### Pattern Recognition
+- **Symptom Clustering**: Related symptoms appearing together
+- **Temporal Associations**: Time-based symptom relationships
+- **Progressive Tracking**: Linear regression for worsening trends
+- **Cyclical Detection**: Recurring pattern identification
+- **Emergency Indicators**: Rapid onset detection within hour windows
 
 ## Medical Disclaimer
 

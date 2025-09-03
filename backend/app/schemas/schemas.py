@@ -252,6 +252,7 @@ class AnalysisRequest(BaseSchema):
     include_test_reports: bool = True
     include_symptoms: bool = True
     include_medical_history: bool = True
+    user_location: Optional[str] = None  # Add location for enhanced recommendations
 
 
 class EmergencyAlert(BaseSchema):
@@ -418,3 +419,76 @@ class ComprehensiveAnalysisResponse(BaseSchema):
     overall_risk_level: RiskLevelEnum
     priority_recommendations: List[Dict[str, Any]]
     analysis_timestamp: datetime
+
+
+# Location-based Medical Service schemas
+class HospitalInfo(BaseSchema):
+    name: str
+    address: str
+    phone: str
+    type: str  # General Hospital, Medical Center, Specialty Hospital, etc.
+    specialty: Optional[str] = None
+    rating: Optional[float] = None
+    distance_km: Optional[float] = None
+    emergency_services: bool = False
+    accepts_insurance: bool = True
+    website: Optional[str] = None
+    directions_url: Optional[str] = None
+    description: Optional[str] = None
+    wait_time_minutes: Optional[int] = None
+    trauma_level: Optional[str] = None  # For emergency facilities
+    open_24_7: Optional[bool] = None
+
+
+class DoctorInfo(BaseSchema):
+    name: str
+    specialty: str
+    practice_name: Optional[str] = None
+    address: str
+    phone: str
+    rating: Optional[float] = None
+    years_experience: Optional[int] = None
+    education: Optional[str] = None
+    accepts_new_patients: bool = True
+    accepts_insurance: bool = True
+    distance_km: Optional[float] = None
+    next_available: Optional[str] = None
+    website: Optional[str] = None
+    directions_url: Optional[str] = None
+    languages: Optional[List[str]] = None
+    hospital_affiliations: Optional[List[str]] = None
+
+
+class LocationSearchRequest(BaseSchema):
+    location: str  # City, state, or full address
+    medical_condition: Optional[str] = None
+    specialty: Optional[str] = None
+    radius_km: int = 25
+    search_type: str = "both"  # "hospitals", "doctors", or "both"
+
+
+class MedicalFacilityRecommendations(BaseSchema):
+    hospitals: List[HospitalInfo] = []
+    doctors: List[DoctorInfo] = []
+    emergency_facilities: List[HospitalInfo] = []
+    urgent_care: List[HospitalInfo] = []
+    specialist_recommendations: Dict[str, Dict[str, List[Any]]] = {}
+    search_location: str
+    search_timestamp: datetime
+    error_message: Optional[str] = None
+
+
+class LocationBasedAnalysisRequest(BaseSchema):
+    consultation_id: UUID
+    user_location: str
+    include_facility_search: bool = True
+    diagnosed_conditions: Optional[List[str]] = None
+    risk_level: Optional[str] = None
+
+
+class EnhancedAnalysisWithLocation(BaseSchema):
+    consultation_id: UUID
+    analysis: AnalysisResponse
+    facility_recommendations: Optional[MedicalFacilityRecommendations] = None
+    location_based_recommendations: List[Dict[str, Any]] = []
+    emergency_instructions: Optional[Dict[str, Any]] = None

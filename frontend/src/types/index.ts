@@ -225,3 +225,76 @@ export interface ComprehensiveAnalysisResponse {
   priority_recommendations: Recommendation[];
   analysis_timestamp: string;
 }
+
+// Location-based medical facility types
+export interface HospitalInfo {
+  name: string;
+  address: string;
+  phone: string;
+  type: string;
+  specialty?: string;
+  rating?: number;
+  distance_km?: number;
+  emergency_services: boolean;
+  accepts_insurance: boolean;
+  website?: string;
+  directions_url?: string;
+  description?: string;
+  wait_time_minutes?: number;
+  trauma_level?: string;
+  open_24_7?: boolean;
+}
+
+export interface DoctorInfo {
+  name: string;
+  specialty: string;
+  practice_name?: string;
+  address: string;
+  phone: string;
+  rating?: number;
+  years_experience?: number;
+  education?: string;
+  accepts_new_patients: boolean;
+  accepts_insurance: boolean;
+  distance_km?: number;
+  next_available?: string;
+  website?: string;
+  directions_url?: string;
+  languages?: string[];
+  hospital_affiliations?: string[];
+}
+
+export interface LocationSearchRequest {
+  location: string;
+  medical_condition?: string;
+  specialty?: string;
+  radius_km: number;
+  search_type: 'hospitals' | 'doctors' | 'both';
+}
+
+export interface MedicalFacilityRecommendations {
+  hospitals: HospitalInfo[];
+  doctors: DoctorInfo[];
+  emergency_facilities: HospitalInfo[];
+  urgent_care: HospitalInfo[];
+  specialist_recommendations: Record<string, any>;
+  search_location: string;
+  search_timestamp: string;
+  error_message?: string;
+}
+
+export interface LocationBasedAnalysisRequest {
+  consultation_id: string;
+  user_location: string;
+  include_facility_search: boolean;
+  diagnosed_conditions?: string[];
+  risk_level?: string;
+}
+
+export interface EnhancedAnalysisWithLocation {
+  consultation_id: string;
+  analysis: AnalysisResponse;
+  facility_recommendations?: MedicalFacilityRecommendations;
+  location_based_recommendations: any[];
+  emergency_instructions?: any;
+}

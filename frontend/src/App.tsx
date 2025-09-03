@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import { RootState } from './store/store';
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -21,28 +22,34 @@ const App: React.FC = () => {
       <Routes>
         {/* Public routes */}
         <Route 
+          path="/" 
+          element={
+            isAuthenticated ? <Navigate to="/app/dashboard" replace /> : <LandingPage />
+          } 
+        />
+        <Route 
           path="/login" 
           element={
-            isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />
+            isAuthenticated ? <Navigate to="/app/dashboard" replace /> : <LoginPage />
           } 
         />
         <Route 
           path="/register" 
           element={
-            isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />
+            isAuthenticated ? <Navigate to="/app/dashboard" replace /> : <RegisterPage />
           } 
         />
         
         {/* Protected routes */}
         <Route 
-          path="/" 
+          path="/app" 
           element={
             <ProtectedRoute>
               <Layout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route index element={<Navigate to="/app/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="consultation" element={<ConsultationPage />} />
           <Route path="consultation/:id" element={<ConsultationPage />} />
@@ -52,7 +59,7 @@ const App: React.FC = () => {
         </Route>
         
         {/* Catch all route */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );

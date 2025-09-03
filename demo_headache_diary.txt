@@ -1,0 +1,74 @@
+HEADACHE SYMPTOM DIARY - 21 DAY TRACKING
+==========================================
+
+Patient: Sarah Johnson (DEMO)
+Start Date: August 1, 2024
+End Date: August 21, 2024
+
+LEGEND:
+Pain Scale: 0 (no pain) - 10 (worst pain imaginable)
+Duration: Hours of headache episode
+Triggers: Identified potential causes
+Relief: Effectiveness of treatment (0-100%)
+
+DATE       TIME    PAIN  DURATION  LOCATION        TRIGGERS              SYMPTOMS                    TREATMENT           RELIEF
+====================================================================================================================================
+Aug 1      2:00PM   4     2 hrs    Right temple    8hr screen time       Light sensitivity           Ibuprofen 400mg     70%
+Aug 3      10:30AM  5     3 hrs    Both sides      Bright office lights  Nausea, dizziness          Acetaminophen 500mg 40%
+Aug 5      4:15PM   6     4 hrs    Right side      Stress, skipped lunch Visual aura (15min)        Ibuprofen + rest    60%
+Aug 7      9:00AM   5     3 hrs    Frontal         Poor sleep (4hrs)     Sound sensitivity          Dark room, cold compress 50%
+
+Aug 8      1:45PM   7     6 hrs    Right temple    Fluorescent lights    Nausea, vomiting           Ibuprofen, sleep    65%
+Aug 10     11:20AM  8     5 hrs    Occipital       Weather change        Zigzag visual aura         Emergency room visit 80%
+Aug 12     3:30PM   6     6 hrs    Bilateral       Caffeine withdrawal   Fatigue, irritability     Caffeine + ibuprofen 55%
+Aug 14     8:45AM   7     4 hrs    Right side      Bright lights         Photophobia, phonophobia   Sumatriptan (new Rx) 85%
+
+Aug 15     2:10PM   9     8 hrs    Severe bilateral Stress deadline      Vomiting, visual spots    Sumatriptan + rest   75%
+Aug 17     10:00AM  0     0 hrs    No headache     -                     Visual disturbance only!   Monitoring          N/A
+Aug 19     6:30PM   8     5 hrs    Left temple     Computer work         Speech difficulty (20min)  Sumatriptan         70%
+Aug 21     Current  4     48 hrs   Persistent low  Ongoing stress        Concentration problems     Ibuprofen round-the-clock 30%
+
+PATTERN ANALYSIS:
+=================
+• Frequency: Increasing from 1/week to 3-4/week
+• Severity: Escalating from mild (4-5) to severe (8-9)
+• Duration: Episodes lasting longer (2-8 hours)
+• New concerning symptoms: Speech difficulties, persistent visual disturbances
+• Clear triggers: Screen time >6hrs, bright lights, stress, poor sleep
+• Medication overuse: Taking pain relief 3-4x per week
+
+QUALITY OF LIFE IMPACT:
+======================
+Work Days Missed: 8 days in 3 weeks
+Social Events Cancelled: 5 events
+Sleep Disruption: 15 nights with poor sleep
+Anxiety Level: 7/10 (fear of next episode)
+Overall Function: Severely impacted
+
+BLOOD PRESSURE CORRELATIONS:
+===========================
+Baseline (no headache): 118/75 mmHg
+During mild episodes: 128/82 mmHg
+During severe episodes: 142/92 mmHg
+Post-episode: Returns to 120/78 mmHg
+
+URGENT CONCERNS:
+===============
+1. Visual disturbances occurring WITHOUT headache (Aug 17)
+2. Speech difficulties during episode (Aug 19)
+3. Persistent low-grade headache for 48+ hours
+4. Increasing frequency and severity trend
+5. Medication overuse pattern developing
+
+NEXT STEPS:
+===========
+□ Neurologist appointment scheduled
+□ MRI brain scan ordered
+□ Medication review with doctor
+□ Trigger avoidance strategies
+□ Emergency action plan discussed
+
+Patient Signature: Sarah Johnson (DEMO)
+Date: August 21, 2024
+
+DISCLAIMER: This is a DEMO document for software testing purposes only.
